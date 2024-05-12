@@ -2,13 +2,12 @@
   "plugin": {
     "mqtt2": {}
   },
-  "apt": {
-    "nodejs": {}
+  "apt":{
   },
-  "pre-install": {
-    "script": "plugins/zwavejs/resources/pre_install.sh"
+  "npm": {
   },
-  "post-install": {
-    "script": "plugins/zwavejs/resources/post_install.sh"
+  "pre-install" : {
+  },
+  "post-install" : {
   }
 }
