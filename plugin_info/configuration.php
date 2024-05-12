@@ -28,22 +28,37 @@ if (!isConnect('admin')) {
 				echo '<div class="alert alert-warning">{{Le plugin jMQTT est installé, veuillez vérifier la configuration du broker dans le plugin jMQTT et la reporter, si nécessaire, dans le plugin MQTT Manager.}}</div>';
 			}
 			?>
-			<div class="form-group">
-				<label class="col-md-4 control-label">{{ZwaveJs UI}}</label>
-				<div class="col-md-3">
-					<a class="btn btn-danger controller_action" target="_blank" href="http://<?php echo network::getNetworkAccess('internal', 'ip') ?>:8091" title="Aucun support ne sera fait en cas de changement d'un réglage du menu configuration de ZwaveJS UI. Vous pouvez changez le mot de passe utilisateur si vous le souhaitez. Vous pouvez utiliser les fonctionnalités. Mais ne changez aucun réglage. Les identifiants par défaut sont : admin/zwave"><i class="fas fa-external-link-square-alt "></i> {{Interface ZwaveJs UI}}</a></td>					
-				</div>
-			</div>
-			<!-- <div class="form-group">
-				<label class="col-md-4 control-label">{{Mode}}</label>
-				<div class="col-md-3">
-					<select class="configKey form-control" data-l1key="zwavejs::mode" id="sel_zwavejsMode">
-					<option value="distant">{{Distant}}</option>
-					<option value="local">{{Local}}</option>
-					</select>
-				</div>
-			</div> -->
-			<div class="form-group zwavejs_mode local">
+       			<div class="form-group">
+           			<label class="col-lg-4 control-label">{{Mode ZWave}}
+         				<sup><i class="fas fa-question-circle tooltips" title="{{Mode du deamon ZWaveJS}}"></i></sup>
+           			</label>
+           			<div class="col-md-7">
+           				<select class="configKey form-control" data-l1key="zwavejs_mode">
+             					<option value="local">{{local}}</option>
+             					<option value="remote">{{docker distant}}</option>
+           				</select>
+            			</div>
+        		</div>
+			<p/>
+        		<div class="form-group zwaveMode remote">
+            			<label class="col-lg-4 control-label">{{IP container ZWaveJS}}
+					 <sup><i class="fas fa-question-circle tooltips" title="{{Adresse IP du container ZWaveJS}}"></i></sup>
+				</label>
+            			<div class="col-md-7">
+               				 <input class="configKey form-control" data-l1key="zwavejs_adminip" />
+            			</div>
+        		</div>
+        		<div class="form-group zwaveMode remote">
+            			<label class="col-lg-4 control-label">{{Port container ZWaveJS}}
+					 <sup><i class="fas fa-question-circle tooltips" title="{{Port d'administration du container ZWaveJS, défaut 8091}}"></i></sup>
+				</label>
+            			<div class="col-md-7">
+                			<input class="configKey form-control" data-l1key="zwavejs_adminport" />
+            			</div>
+        		</div>
+
+
+			<div class="form-group zwaveMode local">
 				<label class="col-md-4 control-label">{{Port du contrôleur Z-Wave}}
 					<sup><i class="fas fa-question-circle tooltips" title="{{Renseigner le port utilisé par le contrôleur Z-Wave}}"></i></sup>
 				</label>
@@ -64,27 +79,26 @@ if (!isConnect('admin')) {
 			</div>
 			<div class="form-group">
 				<label class="col-md-4 control-label">{{Préfixe MQTT}}
-					<sup><i class="fas fa-question-circle tooltips" title="{{Préfixe à utiliser dans MQTT}}"></i></sup>
+					<sup><i class="fas fa-question-circle tooltips" title="{{Préfixe à utiliser dans MQTT. Défaut: zwave}}"></i></sup>
 				</label>
 				<div class="col-md-7">
 					<input type="text" class="configKey form-control" data-l1key="prefix" placeholder="{{}}">
 				</div>
 			</div>
 			<div class="form-group">
-				<label class="col-md-4 control-label">{{Appliquer la configuration recommandée}}
+				<label class="col-md-4 control-label">{{Configuration recommandée}}
 					<sup><i class="fas fa-question-circle tooltips" title="{{Cocher la case pour appliquer le jeu de configuration spécialement recommandé par l'équipe Jeedom lors de l'inclusion d'un nouveau module}}"></i></sup>
 				</label>
 				<div class="col-md-1">
 					<input type="checkbox" class="configKey" data-l1key="auto_applyRecommended" checked>
 				</div>
-				<label class="col-md-4 control-label">{{Suppression des périphériques exclus}}
+				<label class="col-md-5 control-label">{{Supprimer périphériques exclus}}
 					<sup><i class="fas fa-question-circle tooltips" title="{{Cocher la case pour supprimer automatiquement les équipements Jeedom correspondant à des périphériques exclus du contrôleur}}"></i></sup>
 				</label>
 				<div class="col-md-1">
 					<input type="checkbox" class="configKey" data-l1key="autoRemoveExcludeDevice">
 				</div>
 			</div>
-			<br>
 			<div class="form-group">
 				<label class="col-md-4 control-label">{{Alertes de noeuds morts}}
 					<sup><i class="fas fa-question-circle tooltips" title="{{Cocher la case pour être notifié dans le centre de messages Jeedom des noeuds morts et du retour à l'état Alive}}"></i></sup>
@@ -107,36 +121,69 @@ if (!isConnect('admin')) {
 					<input type="checkbox" class="configKey" data-l1key="softReset" checked>
 				</div>
 			</div>
-			<div class="form-group zwavejs_mode local">
-				<label class="col-md-4 control-label">{{Version ZwaveJS UI}}
-					<sup><i class="fas fa-question-circle tooltips" title="{{Version de la librairie ZwaveJS UI}}"></i></sup>
-				</label>
-				<div class="col-md-7">
-				<?php
-				$file = dirname(__FILE__) . '/../resources/zwave-js-ui/package.json';
-				$package = array();
-				if (file_exists($file)) {
-					$package = json_decode(file_get_contents($file), true);
-				}
-				if (isset($package['version'])){
-					config::save('zwavejsVersion', $package['version'], 'zwavejs');
-				}
-				$localVersion = config::byKey('zwavejsVersion', 'zwavejs', 'N/A');
-				$wantedVersion = config::byKey('wantedVersion', 'zwavejs', '');
-				if ($localVersion != $wantedVersion) {
-					echo '<span class="label label-warning">' . $localVersion . '</span><br>';
-					echo "<div class='alert alert-danger text-center'>{{Votre version de ZwaveJS UI n'est pas celle recommandée par le plugin. Vous utilisez actuellement la version }}<code>". $localVersion .'</code>. {{ Le plugin nécessite la version }}<code>'. $wantedVersion .'</code>. {{Veuillez relancer les dépendances pour mettre à jour la librairie. Relancez ensuite le démon pour voir la nouvelle version.}}</div>';
-				} else {
-					echo '<span class="label label-success">' . $localVersion . '</span><br>';
-				}
-				?>
-				</div>
-			</div>
+                        <div class="form-group zwaveMode local">
+                                <label class="col-md-4 control-label tooltips">{{Setup}}
+                                        <sup><i class="fas fa-question-circle tooltips" title="{{Setup du deamon local}}"></i></sup>
+                                </label>
+                                <div class="col-md-6">
+                                        <a class="btn btn-xs btn-warning" id="bt_installZWaveJS"><i class="fas fa-plus-square"></i> {{Installer ZWaveJS}}</a>
+                                        <a class="btn btn-xs btn-danger" id="bt_uninstallZWaveJS"><i class="fas fa-minus-square"></i> {{Désinstaller ZWaveJS}}</a>
+                                </div>
+                                <?php
+                                	if (zwavejs::checkZWaveJSVersion() == 'N/A')
+                                		echo '<span class="label label-danger">NOK</span>';
+                                	else
+                                		echo '<span class="label label-success">OK</span>';
+                                ?>
+                        </div>
+                        <div class="form-group zwaveMode remote">
+                                <label class="col-md-4 control-label tooltips" style="position:relative;top:-5px;">{{Communication ZWaveJS}}
+                                        <sup><i class="fas fa-question-circle tooltips" title="{{Communication avec container ZWaveJS }}"></i></sup>
+                                </label>
+                                <div class="col-md-8">
+                                   <?php
+                               		$mode = config::byKey('zwavejs_mode', 'zwavejs', '');
+					if (!zwavejs::remoteZwaveIsAlive())
+                                               	echo '<span class="col-sm-1 label label-danger">NOK</span>';
+                                        else
+                                               	echo '<span class="col-sm-1 label label-success">OK</span>';
+                                   ?>
+   				   <span class="col-sm-1"></span>
+                                   <a class="btn btn-xs btn-primary" id="bt_testZWave" style="position:relative;top:-5px;">
+                                        <i class="fas fa-sync"></i> {{Tester}}</a>
+                                </div>
+                        </div>
 
+                        <div class="form-group">
+                                <label class="col-md-4 control-label">{{Version ZwaveJS}}
+                                        <sup><i class="fas fa-question-circle tooltips" title="{{Version de la librairie ZwaveJS. Si docker distant: mis à jour après le démarrage du deamon}}"></i></sup>
+                                </label>
+                                <div class="col-md-7">
+                                <?php
+                                $mode = config::byKey('zwavejs_mode', 'zwavejs', '');
+                                if ($mode == 'local')
+                                        config::save('zwavejsVersion', zwavejs::checkZWaveJSVersion(), 'zwavejs');
+                                else {
+					$v = config::byKey('zwavejsVersion', 'zwavejs', '');
+                                        if (empty($v))
+						config::save('zwavejsVersion', 'N/A','zwavejs');
+				}
+                                $localVersion =config::byKey('zwavejsVersion', 'zwavejs', 'N/A');
+                                $wantedVersion = config::byKey('wantedVersion', 'zwavejs', '');
+
+                                if (($mode == 'local') and ($localVersion != $wantedVersion)) {
+                                        echo '<span class="label label-warning">' . $localVersion . '</span><br>';
+                                        echo "<div class='alert alert-danger text-center'>{{ ZwaveJS UI n'est pas installé ou votre version n'est pas celle recommandée par le plugin.
+                                                Vous utilisez actuellement la version }}<code>". $localVersion .'</code>. {{ Le plugin nécessite la version }}<code>' . $wantedVersion .'</code>.
+                                                {{Veuillez réinstaller la librairie. }}</div>';
+                                } else
+                                        echo '<span class="label label-success">' . $localVersion . '</span><br>';
+                                ?>
+                                </div>
+                        </div>
 			<br>
 		</div>
-
-		<div class="col-lg-6 zwavejs_mode local">
+		<div class="col-lg-6">
 			<div class="alert alert-info text-center">{{Les clés de sécurités sont à conserver précieusement. Si vous perdez vos clés les périphériques inclus en sécurisés devront être réappairés. Les clés peuvent être spécifiées, si les champs sont vides ou invalides le plugin en générera et vous pourrez les voir ensuite.}}
 				<br>{{Si votre contrôleur a été utilisé avec le plugin Openzwave et que vous aviez inclus des modules en sécurisés la clé S0 est}} :
 				<code>0102030405060708090A0B0C0D0E0F10</code>
@@ -200,13 +247,80 @@ if (!isConnect('admin')) {
 </form>
 
 <script>
-	$('#sel_zwavejsMode').off('change').on('change', function() {
-		$('.zwavejs_mode').hide();
-		if ($(this).value() != '') {
-		$('.zwavejs_mode.' + $(this).value()).show();
-		}
+	$('.configKey[data-l1key=zwavejs_mode]').off('change').on('change', function() {
+    		$('.zwaveMode').hide()
+    		if ($(this).value() == 'remote')
+			$('.remote').show()
+    		else
+			$('.local').show()
 	})
-	
+
+        $('#bt_installZWaveJS').off('click').on('click', function() {
+                $.ajax({ type: "POST", url: "plugins/zwavejs/core/ajax/zwavejs.ajax.php",
+                        data: {
+                                action: "installZWaveJS"
+                        },
+                        dataType: 'json',
+                        error: function(error) {
+                                $.fn.showAlert({ message: error.message, level: 'danger'
+                                })
+                        },
+                        success: function(data) {
+                                if (data.state != 'ok') {
+                                        $.fn.showAlert({ message: data.result, level: 'danger'
+                                        })
+                                        return
+                                } else {
+                                        $('.pluginDisplayCard[data-plugin_id=' + $('#span_plugin_id').text() + ']').click()
+                                }
+                        }
+                })
+        })
+
+        $('#bt_uninstallZWaveJS').off('click').on('click', function() {
+                $.ajax({ type: "POST", url: "plugins/zwavejs/core/ajax/zwavejs.ajax.php",
+                        data: {
+                                action: "uninstallZWaveJS"
+                        },
+                        dataType: 'json',
+                        error: function(error) {
+                                $.fn.showAlert({ message: error.message, level: 'danger'
+                                })
+                        },
+                        success: function(data) {
+                                if (data.state != 'ok') {
+                                        $.fn.showAlert({ message: data.result, level: 'danger'
+                                        })
+                                        return
+                                } else {
+                                        $('.pluginDisplayCard[data-plugin_id=' + $('#span_plugin_id').text() + ']').click()
+                                }
+                        }
+                })
+        })
+
+        $('#bt_testZWave').off('click').on('click', function() {
+                $.ajax({ type: "POST", url: "plugins/zwavejs/core/ajax/zwavejs.ajax.php",
+                        data: {
+                                action: "testRemoteZWave"
+                        },
+                        dataType: 'json',
+                        error: function(error) {
+                                $.fn.showAlert({ message: error.message, level: 'danger'
+                                })
+                        },
+                        success: function(data) {
+                                if (data.state != 'ok') {
+                                        $.fn.showAlert({ message: data.result, level: 'danger'
+                                        })
+                                        return
+                                } else {
+                                        $('.pluginDisplayCard[data-plugin_id=' + $('#span_plugin_id').text() + ']').click()
+                                }
+                        }
+                })
+        })
+
 	$('.randomKey').off('click').on('click', function() {
 		var el = $(this)
 		bootbox.confirm('{{Êtes-vous sûr de vouloir réinitialiser la clé}}' + ' ' + el.attr('data-key') + ' ? {{La prise en compte sera effective après sauvegarde et relance du démon.}}', function(result) {
@@ -228,8 +342,9 @@ if (!isConnect('admin')) {
 			}
 		})
 	})
-	
+/*
 $('body').off('zwavejs::dependancy_end').on('zwavejs::dependancy_end', function(_event, _options) {
   window.location.reload()
 })
+*/
 </script>
