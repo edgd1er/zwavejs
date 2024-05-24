@@ -14,3 +14,9 @@ docs/.sass-cache/
 .remote-sync.json
 .history
 .vscode
+
+.idea/
+
+zwavejs.tar.bz2
+
+*.iml
