@@ -12,3 +12,9 @@ docs/_site/
 docs/Gemfile.lock
 docs/.sass-cache/
 .remote-sync.json
+
+.idea/
+
+zwavejs.tar.bz2
+
+*.iml
