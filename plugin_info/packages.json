@@ -2,12 +2,7 @@
   "plugin": {
     "mqtt2": {}
   },
-  "apt":{
-  },
-  "npm": {
-  },
-  "pre-install" : {
-  },
-  "post-install" : {
-  }
+  "apt": {},
+  "pre-install": {},
+  "post-install": {}
 }
