@@ -1,10 +1,11 @@
 {
   "plugin" : {
-    "mqtt2" : {}
   },
   "apt":{
+   "nodejs" : {}
   },
   "npm": {
+   "plugins/zwavejs/resources/zwavejsd"  : {}
   },
   "pre-install" : {
   },

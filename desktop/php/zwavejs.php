@@ -140,9 +140,10 @@ sendVarTojs('eqLogic_human_name', $tags);
 		</div>
 
 		<ul class="nav nav-tabs" role="tablist">
-			<li role="presentation"><a class="eqLogicAction cursor" aria-controls="home" role="tab" data-action="returnToThumbnailDisplay"><i class="fas fa-arrow-circle-left"></i></a></li>
+			<li role="presentation"><a href="#" class="eqLogicAction" aria-controls="home" role="tab" data-toggle="tab" data-action="returnToThumbnailDisplay"><i class="fas fa-arrow-circle-left"></i></a></li>
 			<li role="presentation" class="active"><a href="#eqlogictab" aria-controls="home" role="tab" data-toggle="tab"><i class="fas fa-tachometer-alt"></i> {{Equipement}}</a></li>
-			<li role="presentation"><a href="#commandtab" aria-controls="profile" role="tab" data-toggle="tab"><i class="fas fa-list-alt"></i> {{Commandes}}</a></li>
+			<li role="presentation"><a href="#commandstab" aria-controls="profile" role="tab" data-toggle="tab"><i class="fas fa-list-alt"></i> {{Commandes}}</a></li>
+			<li role="presentation"><a href="#zwavejstab" aria-controls="profile" role="tab" data-toggle="tab"><i class="icon mdi-z-wave"></i> {{ZWaveJS}}</a></li>
 			<li role="presentation"><a href="#optionstab" aria-controls="profile" role="tab" data-toggle="tab"><i class="fas fa-pencil-ruler"></i> {{Options}}</a></li>
 		</ul>
 		<div class="tab-content">
@@ -270,37 +271,10 @@ sendVarTojs('eqLogic_human_name', $tags);
 					</div>
 				</div>
 			</div>
-
-			<div role="tabpanel" class="tab-pane" id="commandtab">
-				<div class="input-group pull-right" style="display:inline-flex">
-					<span class="input-group-btn">
-						<a class="btn btn-success btn-sm cmdAction roundedLeft" data-action="add" style="margin-top:5px;"> <i class="fas fa-plus-circle"></i> {{Commandes}}</a>
-						<a id="bt_autoDetectModule" class="btn btn-danger btn-sm roundedRight" style="margin-top:5px;"><i class="fas fa-search"></i> {{Recharger commandes}}</a>
-					</span>
-				</div>
-				<br><br>
-				<div class="table-responsive">
-					<table id="table_cmd" class="table table-bordered table-condensed tablesorter">
-						<thead>
-							<tr>
-								<th class="hidden-xs" style="min-width:50px; max-width:50px;">{{Id}}</th>
-								<th data-sortable="true" data-sorter="inputs" style="min-width:150px;width:250px;">{{Nom}}</th>
-								<th data-sorter="select-text">{{Type}}</th>
-								<th data-sortable="true" data-sorter="inputs">{{Classe}}</th>
-								<th data-sortable="true" data-sorter="inputs">{{Endpoint}}</th>
-								<th data-sortable="true" data-sorter="inputs" style="min-width:260px;width:400px;">{{Propriété}}</th>
-								<th data-sorter="false" data-filter="false" style="min-width:130px;">{{Paramètres}}</th>
-								<th data-sorter="false" data-filter="false">{{Etat}}</th>
-								<th data-sorter="false" data-filter="false" style="min-width:260px;width:400px;">{{Options}}</th>
-								<th data-sorter="false" data-filter="false" style="min-width:80px;">{{Actions}}</th>
-							</tr>
-						</thead>
-						<tbody>
-						</tbody>
-					</table>
-				</div>
-			</div>
-			
+			<?php
+				displayTabPanel('commands');
+				displayTabPanel('zwavejs');
+			?>
 			<div role="tabpanel" class="tab-pane" id="optionstab">
 				<br>
 				<legend><i class="fas fa-sync"></i> {{Rafraîchissement}}</legend>
@@ -340,6 +314,36 @@ sendVarTojs('eqLogic_human_name', $tags);
 		</div>
 	</div>
 </div>
+
+<?php
+function displayTabPanel ($id) {
+	echo '<div role="tabpanel" class="tab-pane" id="' . $id . 'tab">';
+	if ($id != 'zwavejs') {
+		echo '<div class="input-group pull-right" style="display:inline-flex">';
+		echo '<span class="input-group-btn">';
+		echo '<a class="btn btn-success btn-sm cmdAction roundedLeft" data-action="add" style="margin-top:5px;"><i class="fas fa-plus-circle"></i> {{Commandes}}</a>';
+		echo '<a id="bt_autoDetectModule" class="btn btn-danger btn-sm roundedRight" style="margin-top:5px;"><i class="fas fa-search"></i> {{Recharger commandes}}</a>';
+		echo '</span></div><br><br>';
+	}
+	echo '<div class="table-responsive">';
+	echo '<table id="' . $id . '_table" class="table table-bordered table-condensed tablesorter">';
+	echo '<thead><tr>';
+	echo '<th class="hidden-xs" style="min-width:50px; max-width:50px;">{{Id}}</th>';
+	echo '<th data-sortable="true" data-sorter="inputs" style="min-width:150px;width:250px;">{{Nom}}</th>';
+	echo '<th data-sorter="select-text">{{Type}}</th>';
+	echo '<th data-sortable="true" data-sorter="inputs">{{Classe}}</th>';
+	echo '<th data-sortable="true" data-sorter="inputs">{{Endpoint}}</th>';
+	echo '<th data-sortable="true" data-sorter="inputs" style="min-width:260px;width:400px;">{{Propriété}}</th>';
+	echo '<th data-sorter="false" data-filter="false" style="min-width:130px;">{{Paramètres}}</th>';
+	echo '<th data-sorter="false" data-filter="false">{{Etat}}</th>';
+	echo '<th data-sorter="false" data-filter="false" style="min-width:260px;width:400px;">{{Options}}</th>';
+	echo '<th data-sorter="false" data-filter="false" style="min-width:80px;">{{Actions}}</th>';
+	echo '</tr></thead><tbody></tbody></table>';
+	echo '</div></div>';
+}
+?>
+
+
 <?php include_file('core', 'zwavejs', 'class.js', 'zwavejs');
 include_file('desktop', 'zwavejs', 'js', 'zwavejs');
 include_file('core', 'plugin.template', 'js'); ?>
