@@ -17,7 +17,7 @@
  */
 
 function zwavejs_install() {
-
+	zwavejs::initConfig('remote');
 }
 
 function zwavejs_update() {
