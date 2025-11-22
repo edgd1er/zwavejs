@@ -3,68 +3,119 @@
 <p><img src="docs/images/jeedom.png" alt="Logo Jeedom" title="" />
 <img src="docs/images/zwavejs.png" alt="Logo Plugin" title="" /></p>
 
-<p>Version améliorée du plugin officiel <a href="https://github.com/jeedom/plugin-zwavejs">zwavejs</a> avec antenne ZWaveJS distante.
+<p>Version améliorée du plugin officiel <a href="https://github.com/jeedom/plugin-zwavejs">zwavejs</a> avec option antenne ZWaveJS distante ou locale.
 <br>
-Le plugin a été testé avec une antenne docker mais il doit également fonctionner avec une install yarn.</p>
+Le plugin a été testé avec une antenne docker mais il doit également fonctionner avec un container lxc ou une install yarn.
+Il ne nécessite plus le plugin <code>mqtt2</code>. </p>
+
+<ul>
+<li><a href="#principe-de-fonctionnement">Principe de fonctionnement</a></li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#mode-local">Mode local</a></li>
+<li><p><a href="#mode-distant">Mode distant</a></p>
+
+<ul>
+<li><a href="option1-installation-depuis-le-plugin-officiel">Option1: installation depuis le plugin officiel</a></li>
+<li><a href="option2-parametrage-d-une-antenne-existante">Option2: paramétrage d'une antenne existante</a></li>
+<li><a href="installation-de-l-image-sur-le-serveur-distant">Installation de l'image sur le serveur distant</a></li>
+<li><a href="demarrage-et-arret-du-container-zwavejs">Démarrage et arrêt du container ZWaveJS</a></li>
+<li><a href="verification-du-service-zwavejs-et-lancement-du-plugin">Vérification du service ZWaveJS et lancement du plugin</a></li>
+</ul></li>
+<li><p><a href="#parametrage-du-plugin">Paramètrage du plugin</a>  </p></li>
+<li><a href="#faq-et-depannage">FAQ et dépannage</a></li>
+<li><a href="#changelog">Changelog</a></li>
+</ul>
+
+<h2>Principe de fonctionnement</h2>
+
+<p>Ce fork du plugin officiel permet de dissocier l'antenne avec la lib <code>zwavejsui</code> de jeedom avec son plugin, cf le schéma plus bas. 
+L'antenne ZWaveJS comme le broker peuvent être déployés sur n'importe quelle machine, VM ou docker, local ou pas.
+L'installation se fait par défaut en mode distant mais le mode local existe toujours pour des raisons de compatibilité.  </p>
+
+<p><img src="docs/images/arch.png" alt="architecture" title="" /></p>
+
+<h2>Installation</h2>
+
+<p><code>
+$ cd /var/www/html/plugins
+$ sudo git clone https://github.com/lxrootard/zwavejs.git
+$ sudo chown -R www-data:www-data zwavejs
+</code></p>
 
 <h2>Mode local</h2>
 
-<p>Attention l'installation des dépendances n'installe plus le deamon local, il faut utiliser le bouton <code>ìnstaller ZwaveJS</code>.
+<p>Attention l'installation des dépendances n'installe plus la librairie <code>zwave-js-ui</code>, il faut utiliser le bouton <code>ìnstaller ZwaveJS</code>. 
 <br>La version <code>zwave-js-ui</code> qui sera installée et le préfixe MQTT par défaut se trouvent dans le fichier <code>core/config/zwavejs.config.ini</code></p>
 
-<p><br> L'installation se lance en tâche de fond et prend un certain temps. Vous pouvez vérifier le statut avec le bouton <code>rafraichir</code>
-<br> L'avancement de l'installation se trouve dans le fichier de log <code>zwavejs_packages</code>.
+<p>L'installation se lance en tâche de fond et prend un certain temps. Vous pouvez vérifier le statut avec le bouton <code>rafraichir</code>
+<br> L'avancement de l'installation se trouve dans le fichier de log <code>zwavejs_packages</code>. 
 <br> Le voyant doit être vert et à OK et la version doit s'afficher en dessous une fois l'installation terminée.</p>
 
 <p><img src="docs/images/zwavejs1.png" alt="Page configuration local" title="" /></p>
 
 <p><p></p>
 
-<p>Le fonctionnement est identique à celui du plugin officel. Pour plus d'infos voir la <a href="https://doc.jeedom.com/fr_FR/plugins/automation%20protocol/zwavejs">doc</a> du plugin ZWaveJS</p>
+<p>Le fonctionnement est identique à celui du plugin officiel. Pour plus d'infos voir la <a href="https://doc.jeedom.com/fr_FR/plugins/automation%20protocol/zwavejs">doc</a> du plugin ZWaveJS</p>
 
 <h2>Mode distant (non managé)</h2>
 
-<p>Ce mode est réservé aux utilisateurs expérimentés sachant utiliser la ligne de commande.
-<bR></p>
+<p>Ce mode est réservé aux utilisateurs expérimentés sachant utiliser la ligne de commande. 
+Le déploiement du docker distant est à effectuer manuellement.</p>
+
+<h3>Option1: installation depuis le plugin officiel</h3>
+
+<p>Procédure à suivre si vous avez déjà le plugin officiel <code>zwavejs</code> et que vous souhaitez déporter l'antenne en gardant vos settings Jeedom.</p>
 
 <p>Copier et extraire l'archive générée <code>data/remote/docker_config.tar.gz</code> dans un répertoire local sur la machine distante ex:</p>
 
-<pre><code>$ sudo mkdir -p /root/store/zwavejs
-$ cd /root/store/zwavejs
-$ sudo tar xvfz /tmp/docker_config.tar.gz
+<pre><code>remote$ sudo mkdir -p /root/store/zwavejs
+remote$ cd /root/store/zwavejs
+remote$ sudo tar xvfz /tmp/docker_config.tar.gz
 </code></pre>
 
-<p><p>
-Vous devez obtenir l'arborescence suivante:</p>
+<p><p>Vous devez obtenir l'arborescence suivante sur la machine distante:</p>
 
 <pre><code>/root/store/zwavejs/config.json
 /root/store/zwavejs/config/
 </code></pre>
 
-<p><p>Copier et utiliser le script <code>resources/zwavejs</code> sur la machine distante pour gérer le container</p>
+<p><p>Optionnel: copier et utiliser le script <code>resources/zwavejs</code> sur la machine distante pour gérer le container</p>
 
-<h3>Installation de l'image</h3>
+<h3>Option2: paramétrage d'une antenne existante</h3>
 
-<p>Installer l'image <code>zwave-js-ui</code> sur le docker distant:</p>
+<p>Procédure à suivre si vous voulez vous connecter à une antenne existante préalablement déployée.</p>
 
-<pre><code>$ sudo docker pull zwavejs/zwave-js-ui
+<p>Modifiez le paramétrage de l'antenne via l'interface <code>zwavejsui &gt; Settings</code> avec les valeurs suivantes:</p>
+
+<p><img src="docs/images/zwavejsui0.png" alt="zwavejsui0" title="" />
+<img src="docs/images/zwavejsui1.png" alt="zwavejsui1" title="" />
+<img src="docs/images/zwavejsui2.png" alt="zwavejsui2" title="" />
+<img src="docs/images/zwavejsui3.png" alt="zwavejsui3" title="" /></p>
+
+<p>Attention! Les settings en <span style="color:red">rouge</span> sont ceux qui sont attendus par le plugin, sans changement ca ne fonctionnera pas. 
+<br>Le préfixe et le nom de la gateway MQTT peuvent être changés dans la page de configuration du plugin: <code>zwave</code> et <code>Jeedom</code> par défaut.</p>
+
+<h3>Installation de l'image sur le serveur distant</h3>
+
+<p>Si elle n'est pas déjà présente installer l'image <code>zwave-js-ui</code> sur le docker distant:</p>
+
+<pre><code>remote$ sudo docker pull zwavejs/zwave-js-ui
 </code></pre>
 
 <p>ou installation + démarrage du container:</p>
 
-<pre><code>$ sudo zwavejs start
+<pre><code>remote$ sudo zwavejs start
 </code></pre>
 
-<h3>Démarrage et arrêt du container</h3>
+<h3>Démarrage du container ZWaveJS et lancement du plugin</h3>
 
-<pre><code>$ sudo zwavejs
+<pre><code>remote$ sudo zwavejs 
 usage: zwavejs {start|stop|restart|status}
 </code></pre>
 
-<p>Si vous utilisez un répertoire local différent de <code>/root/store/zwavejs</code> modifiez le dans le script
-<br>Idem pour le device, par exemple: <code>/dev/ttyACM0</code></p>
+<p>Si vous utilisez un répertoire local différent de <code>/root/store/zwavejs</code> modifiez le dans le script</p>
 
-<h3>Vérification du container</h3>
+<h3>Vérification du service ZWaveJS et lancement du plugin</h3>
 
 <p>Connectez-vous sur <code>http://remote-ip:8091</code></p>
 
@@ -77,27 +128,53 @@ usage: zwavejs {start|stop|restart|status}
 
 <p><img src="docs/images/zwavejs2.png" alt="Admin zwave-js-ui" title="" /></p>
 
-<h3>Paramètrage du plugin:</h3>
+<p>Mettez à jour le paramétrage du plugin, cf section <a href="#parametrage-du-plugin">paramétrage</a> plus bas.
+<br>Vous pouvez maintenant démarrer votre deamon Jeedom puis vérifier que les infos remontent:</p>
 
-<p>Page de configuration du plugin:</p>
+<p><img src="docs/images/zwavejs4.png" alt="Ecran principal" title="" /></p>
+
+<h2>Paramètrage du plugin</h2>
+
+<p>Page de configuration:</p>
 
 <ul>
-<li>IP ZWaveJS: adresse du service de l'antenne distante (docker ou pas)</li>
-<li>Port ZWaveJS: Port d'administration du service (défaut 8091)</li>
-<li>Préfixe MQTT (défaut zwave)</li>
+<li>Serveur ZWaveJS: adresse IP et port du service de l'antenne distante (docker ou pas). Port par défaut: 8091</li>
+<li>Broker MQTT: adresse IP et port du service MQTT (distant ou pas). Port par défaut: 1883</li>
+<li>Authentification MQTT: utilisateur et mot de passe du broker.</li>
+<li>Préfixe et passerelle MQTT: topics entrant et sortant utilisés. Défaut: <code>zwave</code> et <code>Jeedom</code>. <br>Attention pas d'espaces!</li>
+<li>Port socket MQTT: port du callback Jeedom, ne pas modifier sauf conflit.</li>
 <li>Communication ZWaveJS et bouton <code>Tester</code>: vert si le service distant est démarré et disponible</li>
 <li>Version ZWaveJS: version du service distant</li>
 </ul>
 
-<p>Vérifiez la communication en cliquant sur le bouton <code>Tester</code>
+<p>Vérifiez la communication en cliquant sur le bouton <code>Tester</code> 
 <br>Le voyant <code>communication</code> doit passer au vert:</p>
 
 <p><img src="docs/images/zwavejs3.png" alt="Page configuration remote" title="" /></p>
 
 <p><br>Note: La version se mettra à jour après démarrage du deamon</p>
 
-<h3>Démarrage du deamon</h3>
+<h3>FAQ et dépannage</h3>
 
-<p><br>Vous pouvez maintenant démarrer votre deamon Jeedom puis vérifier que les infos remontent:</p>
+<ul>
+<li><p>Le voyant communication est NOK le démon ne démarre pas
+<br>Commencez par vérifier si l'antenne fonctionne, cf section <a href="#verification-du-service-zwavejs-et-lancement-du-plugin">Vérification du service ZWaveJS</a>
+<br>Vérifiez également les adresses IP et ports utilisés pour le broker et l'administration de l'image <code>zwavejsui</code>. 
+<br>Si vous avez installé avec l'option2 vérifiez que vous avez bien copié l'ensemble des paramètres présents dans l'IHM d'administration de l'image vers celle de jeedom.</p></li>
+<li><p>Le voyant communication est OK mais les commandes ne fonctionnent pas 
+<br> Vérifiez que les topics sont identiques notamment pour le sortant (pas de contrôle automatique). 
+<br>Si vous avez installé avec l'option1 vous devez retouver votre paramétrage dans l'IHM de l'image, si vous avez pris l'option2 il faut vérifier coté Jeedom.</p></li>
+<li><p>Si ca ne suffit pas comparez les 2 fichiers de configuration <code>zwavejs/data/store/settings.json</code> et <code>/root/store/zwavejs/config.json</code></p></li>
+</ul>
 
-<p><img src="docs/images/zwavejs4.png" alt="Ecran principal" title="" /></p>
+<h2>Changelog</h2>
+
+<ul>
+<li>v3 <a href="https://github.com/lxrootard">lxrootard</a>
+<br> - Suppression de la dépendance au plugin mqtt2
+<br> - Ajout d'un onglet pour les commandes ZWaveJS et filtres sur les commandes
+<br> - Mise à jour des devices supportés
+<br> - Bugfix</li>
+<li>v2 <a href="https://github.com/lxrootard">lxrootard</a>
+<br> - Mode distant pour le serveur ZWaveJS (docker ou lxc)</li>
+</ul>

@@ -26,9 +26,17 @@ if (isset($_GET['test'])) {
 	die();
 }
 $results = json_decode(file_get_contents("php://input"), true);
+//log::add('zwavejs', 'debug', '>>> réponse deamon ZWaveJS ' . json_encode($results));
+
 if (!is_array($results)) {
-	die();
+        die();
 }
+
+if(isset($results['zwave'])) {
+    foreach ($results as $key => $value)
+            zwavejs::handleMqttMessage(array($key => $value));
+}
+
 $delta = time() - config::byKey('lastinclusion', 'zwavejs', 0);
 if (isset($results['devices'])) {
 	foreach ($results['devices'] as $node_id => $datas) {

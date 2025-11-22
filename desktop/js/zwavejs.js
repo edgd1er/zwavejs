@@ -436,8 +436,19 @@ $('body').off('zwavejs::sync').on('zwavejs::sync', function(_event, _options) {
   })
   if (_options.type == 'finished') {
     window.location.href = 'index.php?v=d&p=zwavejs&m=zwavejs'
+//    window.location.reload()
   }
 })
+
+setTimeout(() => {
+  $('.eqLogicAction[data-action=returnToThumbnailDisplay]').removeAttr('href').off('click').on('click', function(event) {
+    // contournement du plugin.template du core
+    // force un load page lors du click sur returnToThumbnailDisplay
+    event.preventDefault()
+    jeedomUtils.loadPage('index.php?v=d&p=zwavejs&m=zwavejs', false)
+  })
+}, "500");
+
 
 $('body').off('zwavejs::includeDevice').on('zwavejs::includeDevice', function(_event, _options) {
   if (modifyWithoutSave) {
@@ -558,8 +569,8 @@ function syncEqLogicWithzwavejs() {
     }
   })
 }
-
-$("#table_cmd").sortable({
+/*
+$("#commands_table").sortable({
   axis: "y",
   cursor: "move",
   items: ".cmd",
@@ -567,11 +578,8 @@ $("#table_cmd").sortable({
   tolerance: "intersect",
   forcePlaceholderSize: true
 })
-
-function addCmdToTable(_cmd) {
-  if (!isset(_cmd)) {
-    var _cmd = { configuration: {} }
-  }
+*/
+function buildCmd(_cmd) {
   var tr = '<tr class="cmd" data-cmd_id="' + init(_cmd.id) + '">'
   tr += '<td class="hidden-xs">'
   tr += '<span class="cmdAttr" data-l1key="id"></span>'
@@ -612,7 +620,7 @@ function addCmdToTable(_cmd) {
   if (init(_cmd.subType) == 'numeric' && init(_cmd.configuration.property) == 'Air temperature') {
     tr += '<label class="checkbox-inline"><input type="checkbox" class="cmdAttr" data-l1key="configuration" data-l2key="convertFaren">{{Convertir °F-°C}}</label> '
   }
-  tr += '<div style="margin-top:7px;">'
+  tr += '<div style="margin-top:7px; display:flex">'
   tr += '<input class="tooltips cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="minValue" placeholder="{{Min}}" title="{{Min}}" style="width:30%;max-width:80px;display:inline-block;margin-right:2px;">'
   tr += '<input class="tooltips cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="maxValue" placeholder="{{Max}}" title="{{Max}}" style="width:30%;max-width:80px;display:inline-block;margin-right:2px;">'
   tr += '<input class="tooltips cmdAttr form-control input-sm" data-l1key="unite" placeholder="Unité" title="{{Unité}}" style="width:30%;max-width:80px;display:inline-block;margin-right:2px;">'
@@ -626,20 +634,54 @@ function addCmdToTable(_cmd) {
   }
   tr += ' <i class="fas fa-minus-circle cmdAction cursor" data-action="remove"></i></td>'
   tr += '</tr>'
-  $('#table_cmd tbody').append(tr)
-  var tr = $('#table_cmd tbody tr').last()
-  jeedom.eqLogic.buildSelectCmd({
-    id: $('.eqLogicAttr[data-l1key=id]').value(),
-    filter: { type: 'info' },
-    error: function(error) {
-      $.fn.showAlert({ message: error.message, level: 'danger' })
-    },
-    success: function(result) {
-      tr.find('.cmdAttr[data-l1key=value]').append(result)
-      tr.setValues(_cmd, '.cmdAttr')
-      jeedom.cmd.changeType(tr, init(_cmd.subType))
-    }
-  })
+  return tr;
+}
+
+function displayCmd(_cmd, tr) {
+    jeedom.eqLogic.buildSelectCmd ({
+        id: $('.eqLogicAttr[data-l1key=id]').value(),
+        filter: {type: 'info'},
+        error: function (error) {
+		//alert ('error in displayCmd cmdid=' + $('.eqLogicAttr[data-l1key=id]').value());
+                $('#div_alert').showAlert({message: error.message, level: 'danger'});
+        },
+        success: function (result) {
+                tr.find('.cmdAttr[data-l1key=value]').append(result);
+                tr.setValues(_cmd, '.cmdAttr');
+                // if (!isset(_cmd.subType))
+		jeedom.cmd.changeType(tr, init(_cmd.subType));
+        }
+    });
+}
+
+function addCmdToTable(_cmd) {
+    if (!isset(_cmd))
+        var _cmd = { configuration: {} }
+
+    if (!isset(_cmd.configuration))
+        _cmd.configuration = {}
+
+    const cmdLid = _cmd.logicalId;
+    const eqId = _cmd.eqLogic_id;
+    if (!isset(eqId))
+	return;
+
+    jeedom.eqLogic.byId({ id: eqId,
+	success: function (eqLogic) {
+	   if (cmdLid.toLowerCase().startsWith('0-0-')) {
+		$('#zwavejs_table tbody').append(buildCmd(_cmd))
+		var tr = $('#zwavejs_table tbody tr').last()
+	   } else {
+		$('#commands_table tbody').append(buildCmd(_cmd))
+		var tr = $('#commands_table tbody tr').last()
+	   }
+	   displayCmd(_cmd,tr);
+	},
+	error: function(error) {
+		// alert ('error in addCmdToTable: ' + error.message + ' eqId:' +eqId +' cmdId: ' + _cmd.id);
+		$.fn.showAlert({ message: error.message, level: 'danger' })
+	}
+    });
 }
 
 function saveEqLogic(_eqLogic) {
@@ -677,3 +719,7 @@ function addRefresh(_refresh) {
   $('#table_zwaveRefresh').find('tbody').append(tr)
   $('#table_zwaveRefresh').find('tbody tr').last().setValues(_refresh, '.refreshAttr')
 }
+
+$('body').off('zwavejs::refreshStatus').on('zwavejs::refreshStatus', function(_event, _options) {
+  window.location.reload();
+});

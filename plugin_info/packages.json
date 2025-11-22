@@ -1,8 +1,14 @@
 {
-  "plugin": {
-    "mqtt2": {}
+  "plugin" : {
   },
-  "apt": {},
-  "pre-install": {},
-  "post-install": {}
+  "apt":{
+   "nodejs" : {}
+  },
+  "npm": {
+   "plugins/zwavejs/resources/zwavejsd"  : {}
+  },
+  "pre-install" : {
+  },
+  "post-install" : {
+  }
 }

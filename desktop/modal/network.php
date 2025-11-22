@@ -307,9 +307,8 @@ if (!isConnect('admin')) {
 							<tr>
 								<td><a class="btn btn-danger controller_action" target="_blank"
 									<?php
-										$ip = config::byKey('zwavejs_adminip', 'zwavejs');
-										$port = config::byKey('zwavejs_adminport', 'zwavejs');
-										echo 'href="http://' . $ip . ':' . $port. '"';
+										$zwSettings = config::byKey('zwavejs', 'zwavejs', array());
+										echo 'href="http://' . $zwSettings['host'] . ':' .  $zwSettings['port'] . '"';
 									?>
 								><i class="fas fa-external-link-square-alt "></i> {{Interface ZwaveJs UI}}</a></td>
 								<td><b>{{Aucun support}}</b> {{ne sera fait en cas de changement d'un réglage du}}<b> {{menu configuration de ZwaveJS UI}}</b>. {{Vous pouvez changez le mot de passe utilisateur si vous le souhaitez. Vous pouvez utiliser les fonctionnalités.}}<b> {{Mais ne changez aucun réglage.}}</b> {{Les identifiants par défaut sont}} : <span class="label label-info">admin/zwave</span></td>
