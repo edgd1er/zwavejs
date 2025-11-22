@@ -18,92 +18,56 @@
 
 /* * ***************************Includes********************************* */
 
+require_once __DIR__  . '/../../../../core/php/core.inc.php';
+if (!class_exists('jeedomtools\MQTTClient'))
+	require_once __DIR__  . '/MQTTClient.php';
 
-class zwavejs extends eqLogic
-{
+use jeedomtools\MQTTClient as zw_MQTTClient;
 
 
-    public static function dependancy_end()
-    {
-        // log::add(__CLASS__, 'debug', '>>> Dependancy end');
-        self::initConfig('local');
-    }
+	private static $_deamon;
 
-    public static function initConfig($mode)
-    {
-        config::save('zwavejsVersion', 'N/A', __CLASS__);
-        #config::save('zwavejs_adminport', '8091', __CLASS__);
-        self::isValidKey(config::byKey('s2key_access', __CLASS__, '')) ? true : config::save('s2key_access', self::generateRandomKey(), __CLASS__);
-        self::isValidKey(config::byKey('s2key_unauth', __CLASS__, '')) ? true : config::save('s2key_unauth', self::generateRandomKey(), __CLASS__);
-        self::isValidKey(config::byKey('s2key_auth', __CLASS__, '')) ? true : config::save('s2key_auth', self::generateRandomKey(), __CLASS__);
-        self::isValidKey(config::byKey('s2key_auth_long', __CLASS__, '')) ? true : config::save('s2key_auth_long', self::generateRandomKey(), __CLASS__);
-        self::isValidKey(config::byKey('s2key_access_long', __CLASS__, '')) ? true : config::save('s2key_access_long', self::generateRandomKey(), __CLASS__);
-        self::isValidKey(config::byKey('s0key', __CLASS__, '')) ? true : config::save('s0key', self::generateRandomKey(), __CLASS__);
-        if ($mode == 'local') {
-            config::save('zwavejs_mode', 'local', __CLASS__);
-            config::save('zwavejs_adminip', '127.0.0.1', __CLASS__);
-        } else
-            config::save('zwavejs_mode', 'remote', __CLASS__);
-    }
+	public static function getDeamon() {
+	   if (is_null(self::$_deamon)) {
+		self::$_deamon =  new zw_MQTTClient(__CLASS__);
+	   }
+	   return self::$_deamon;
+	}
 
-    private function getValueLabels($_key, $_value)
-    {
-        $labelArray = array(
-            "64-mode" => array(
-                "0" => __('Inactif', __FILE__),
-                "1" => __('En Chauffe', __FILE__),
-                "2" => __('En Refroidissement', __FILE__),
-                "3" => __('Auto', __FILE__),
-                "5" => __('Resume (on)', __FILE__),
-                "6" => __('Ventillation', __FILE__),
-                "8" => __('Asséchement', __FILE__)
-            ),
-            "66-state" => array(
-                "0" => __('Inactif', __FILE__),
-                "1" => __('En Chauffe', __FILE__),
-                "2" => __('En Refroidissement', __FILE__),
-                "3" => __('Ventillation', __FILE__),
-                "4" => __('Chauffe en attente', __FILE__),
-                "5" => __('Refroidissement en attente', __FILE__),
-                "6" => __('Vent/Eco', __FILE__),
-                "7" => __('Chauffe Aux', __FILE__),
-                "8" => __('Chauffe 2nd', __FILE__),
-                "9" => __('Refroidissement 2nd', __FILE__),
-                "10" => __('Chauffe 2nd Aux', __FILE__),
-                "11" => __('Chauffe 3ème Aux', __FILE__)
-            ),
-            "68-mode" => array(
-                "0" => __('Auto Bas', __FILE__),
-                "1" => __('Bas', __FILE__),
-                "3" => __('Haut', __FILE__),
-                "5" => __('Moyen', __FILE__)
-            ),
-            "91-scene" => array(
-                "0" => __('Appui 1x', __FILE__),
-                "1" => __('Relâchement', __FILE__),
-                "2" => __('Appui long', __FILE__),
-                "3" => __('Appui 2x', __FILE__),
-                "4" => __('Appui 3x', __FILE__),
-                "5" => __('Appui 4x', __FILE__),
-                "6" => __('Appui 5x', __FILE__),
-                "90" => 'N/A'
-            ),
-            "102-currentState" => array(
-                "0" => __('Fermé', __FILE__),
-                "252" => __('Fermeture en cours', __FILE__),
-                "253" => __('Arrêté', __FILE__),
-                "254" => __('Ouverture en cours', __FILE__),
-                "255" => __('Ouvert', __FILE__)
-            )
-        );
-        $result = false;
-        if (isset($labelArray[$_key]) && isset($labelArray[$_key][$_value])) {
-            $result = $labelArray[$_key][$_value];
-        }
-        return $result;
-    }
+	public static function send_alert($msg) {
+	   log::add(__CLASS__, 'error', __($msg, __FILE__), 'unableStartDeamon');
+	   event::add('jeedom::alert', array('level' => 'warning', 'page' => 'zwavejs',
+	   'message' => $msg));
+	}
 
-    /*     * *************************Attributs****************************** */
+	public static function initConfig ($mode) {
+		$zwSettings = config::byKey('zwavejs', __CLASS__, array());
+		if (empty($zwSettings)) {
+			$zwSettings['mode'] = $mode;
+			$zwSettings['host'] = 'localhost';
+			$zwSettings['port'] = '8091';
+			config::save('zwavejs', json_encode($zwSettings), __CLASS__);
+			cache::set('blescanner::version', 'N/A');
+		}
+
+		$mqttSettings = config::byKey('mqtt', __CLASS__,array());
+		if (empty($mqttSettings)) {
+			$mqttSettings['host'] = 'localhost';
+			$mqttSettings['port'] = '1883';
+			$mqttSettings['prefix'] = 'zwave';
+			$mqttSettings['socket_port'] = '55034';
+			$mqttSettings['gateway'] = 'Jeedom';
+			config::save('mqtt', json_encode($mqttSettings), __CLASS__);
+		}
+		//log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . __('Configuration ZWaveJS: ', __FILE__) . json_encode($zwSettings));
+		//log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . __('Configuration MQTT: ', __FILE__) . json_encode($mqttSettings));
+                self::isValidKey(config::byKey('s2key_access', __CLASS__, '')) ? true : config::save('s2key_access', self::generateRandomKey(), __CLASS__);
+                self::isValidKey(config::byKey('s2key_unauth', __CLASS__, '')) ? true : config::save('s2key_unauth', self::generateRandomKey(), __CLASS__);
+                self::isValidKey(config::byKey('s2key_auth', __CLASS__, '')) ? true : config::save('s2key_auth', self::generateRandomKey(), __CLASS__);
+                self::isValidKey(config::byKey('s2key_auth_long', __CLASS__, '')) ? true : config::save('s2key_auth_long', self::generateRandomKey(), __CLASS__);
+                self::isValidKey(config::byKey('s2key_access_long', __CLASS__, '')) ? true : config::save('s2key_access_long', self::generateRandomKey(), __CLASS__);
+                self::isValidKey(config::byKey('s0key', __CLASS__, '')) ? true : config::save('s0key', self::generateRandomKey(), __CLASS__);
+	}
 
     public static $_excludeOnSendPlugin = array('zwavejs.log');
 
@@ -147,41 +111,47 @@ class zwavejs extends eqLogic
     }
 
 
-    public static function checkZWaveJSSvc()
-    {
-        $ip = config::byKey('zwavejs_adminip', __CLASS__);
-        $port = config::byKey('zwavejs_adminport', __CLASS__);
-        $rc = shell_exec(system::getCmdSudo() . 'curl ' . $ip . ':' . $port . '/health/zwave -H "Accept: text/plain" 2>&1');
-        $b = strpos($rc, "Ok") !== false;
-        log::add(__CLASS__, 'debug', 'ZWaveJS service ' . $ip . ':' . $port . ' status: ' . $b);
-        return ($b);
-    }
+	public static function checkZWaveJSSvc() {
+		$zwSettings = config::byKey('zwavejs',__CLASS__,array());
+		$ip = $zwSettings['host'];
+		$port = $zwSettings['port'];
+		if (is_null($ip) || is_null($port))
+			return false;
+		$rc = shell_exec(system::getCmdSudo() . 'curl ' . $ip .':'.$port .'/health/zwave -H "Accept: text/plain" 2>&1');
+		$b = strpos($rc, "Ok")!== false;
+		log::add(__CLASS__, 'debug', 'ZWaveJS service ' . $ip .':' . $port . ' status: '. $b);
+		return ($b);
+	}
 
+	public static function cron() {
+		if (! self::isRunning())
+			return;
 
-    public static function cron()
-    {
-//	 	log::add(__CLASS__, 'debug', '*** CRON ***');
-        if (!self::isRunning())
-            return;
-        if (!self::checkZWaveJSSvc()) {
-            self::deamon_stop();
-            log::add(__CLASS__, 'error', __('Service ZWaveJS arrêté', __FILE__), 'unableStartDeamon');
-            throw new Exception(__("Service ZWaveJS arrêté", __FILE__));
-        }
-        $eqLogics = self::byType(__CLASS__);
-        foreach ($eqLogics as $eqLogic) {
-            $polling = $eqLogic->getConfiguration('polling', array());
-            foreach ($polling as $class => $time) {
-                // log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . 'Polling Found for ' . $eqLogic->getHumanName() . ' ' . $time . ' ' . $class);
-                if ($time != 'Aucun') {
-                    $c = new Cron\CronExpression(checkAndFixCron('*/' . $time . ' * * * *'), new Cron\FieldFactory);
-                    if ($c->isDue()) {
-                        $eqLogic->pollValue($class);
-                    }
-                }
-            }
-        }
-    }
+		log::add(__CLASS__, 'debug', '*** CRON ***');
+		$mqttd = self::getDeamon();
+		if (! ($mqttd->isRunning()))
+			throw new Exception('Service MQTT arrêté');
+
+                if (! self::checkZWaveJSSvc()) {
+			self::deamon_stop();
+			log::add(__CLASS__, 'error', __('Service ZWaveJS arrêté', __FILE__), 'unableStartDeamon');
+                        self::send_alert("Service ZWaveJS arrêté");
+			//throw new Exception(__("Service ZWaveJS arrêté", __FILE__));
+		}
+		$eqLogics = self::byType(__CLASS__);
+		foreach ($eqLogics as $eqLogic) {
+			$polling = $eqLogic->getConfiguration('polling', array());
+			foreach ($polling as $class => $time) {
+				// log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . 'Polling Found for ' . $eqLogic->getHumanName() . ' ' . $time . ' ' . $class);
+				if ($time != 'Aucun') {
+					$c = new Cron\CronExpression(checkAndFixCron('*/' . $time . ' * * * *'), new Cron\FieldFactory);
+					if ($c->isDue()) {
+						$eqLogic->pollValue($class);
+					}
+				}
+			}
+		}
+	}
 
     public static function cronHourly()
     {
@@ -200,9 +170,9 @@ class zwavejs extends eqLogic
         if (!is_dir($backup_path))
             mkdir($backup_path, 0777, true);
 
-        $mode = config::byKey('zwavejs_mode', __CLASS__, '');
-        if (($mode == 'local') and is_dir($remote_dir))
-            shell_exec(system::getCmdSudo() . 'rm -rf ' . $remote_dir);
+		$zwSettings = config::byKey('zwavejs', __CLASS__, array());
+		if (($zwSettings['mode'] == 'local') and is_dir ($remote_dir))
+			shell_exec(system::getCmdSudo() . 'rm -rf '. $remote_dir);
 
         exec(system::getCmdSudo() . "chown -R www-data:www-data " . $path . '/data');
         $status_path = $path . '/data/status';
@@ -279,45 +249,38 @@ class zwavejs extends eqLogic
         config::save('installInProgress', 0, __CLASS__);
     }
 
-    public static function checkZWaveJSVersion()
-    {
-// log::add(__CLASS__, 'debug', '[' . __FUNCTION__ .']');
-        if (config::byKey('installInProgress', __CLASS__, '') == 1)
-            return 'N/A';
-        $file = dirname(__FILE__) . '/../../resources/zwave-js-ui/package.json';
-        $package = array();
-        if (file_exists($file)) {
-            $package = json_decode(file_get_contents($file), true);
-            if (isset($package['version']))
-                return $package['version'];
-        }
-        return 'N/A';
-    }
+	public static function checkZWaveJSVersion() {
+// 		log::add(__CLASS__, 'debug', '[' . __FUNCTION__ .']');
+		if (config::byKey('installInProgress', __CLASS__, '') == 1)
+			return 'N/A';
+		$file = dirname(__FILE__) . '/../../resources/zwave-js-ui/package.json';
+		$package = array();
+		if (file_exists($file)) {
+			$package = json_decode(file_get_contents($file), true);
+			if (isset($package['version']))
+				return $package['version'];
+		}
+		return 'N/A';
+	}
 
-    public static function configureSettings($mode)
-    {
-//              log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] mode=' . $mode);
-        self::initConfig($mode);
-        self::initSettings();
-        $file = realpath(dirname(__FILE__)) . '/../../data/store/settings.json';
-        $settings = array();
-        if (file_exists($file)) {
-            unlink($file);
-        }
-        $settings['mqtt'] = array();
-        $settings['gateway'] = array();
-        $settings['zwave'] = array();
+	public static function generateSettings($mode) {
+		log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] mode=' . $mode);
+		self::initConfig($mode);
+		self::initSettings();
+		$file = realpath(dirname(__FILE__)) . '/../../data/store/settings.json';
+		$settings = array();
+		if (file_exists($file)) {
+			unlink($file);
+		}
+		$settings['mqtt'] = array();
+		$settings['gateway'] = array();
+		$settings['zwave'] = array();
 
-        $mqttInfos = mqtt2::getFormatedInfos();
-        log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . __('Informations reçues de MQTT Manager', __FILE__) . ' : ' . json_encode($mqttInfos));
+		$zwSettings = config::byKey('zwavejs', __CLASS__, array());
+		$mqttSettings = config::byKey('mqtt', __CLASS__,array());
 
-        $settings['mqtt']['name'] = 'Jeedom';
-        $settings['mqtt']['host'] = $mqttInfos['ip'];
-        $settings['mqtt']['port'] = $mqttInfos['port'];
-        $settings['mqtt']['auth'] = true;
-        $settings['mqtt']['username'] = $mqttInfos['user'];
-        $settings['mqtt']['password'] = $mqttInfos['password'];
-        $settings['mqtt']['prefix'] = config::byKey('prefix', __CLASS__, 'zwave');
+		log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . __('Configuration ZWaveJS: ', __FILE__) . json_encode($zwSettings));
+		log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . __('Configuration MQTT: ', __FILE__) . json_encode($mqttSettings));
 
         if ($mode == 'local') {
             $settings['zwave']['port'] = jeedom::getUsbMapping(config::byKey('port', __CLASS__));
@@ -350,6 +313,44 @@ class zwavejs extends eqLogic
             'S2_Authenticated' => config::byKey('s2key_auth_long', __CLASS__)
         );
 		$settings['mqtt']['allowSelfsigned'] = true;
+		$settings['mqtt']['name'] = $mqttSettings['gateway'];
+		$settings['mqtt']['host'] = $mqttSettings['host'];
+		$settings['mqtt']['port'] = $mqttSettings['port'];
+		$settings['mqtt']['auth'] = true;
+		$settings['mqtt']['username'] = $mqttSettings['user'];
+		$settings['mqtt']['password'] = $mqttSettings['passwd'];
+		$settings['mqtt']['prefix'] = $mqttSettings['prefix'];
+
+		if ($mode =='local') {
+			$settings['zwave']['port'] = jeedom::getUsbMapping($zwSettings['usb_port']);
+			log::add(__CLASS__, 'debug', 'port ZWaveJS: ' . $settings['zwave']['port']);
+			$settings['zwave']['deviceConfigPriorityDir'] = realpath(dirname(__FILE__) . '/../config/config');
+		} else {
+			$settings['zwave']['port'] = '/dev/zwave';
+			$settings['zwave']['deviceConfigPriorityDir'] = '/usr/src/app/store/config';
+		}
+		$settings['zwave']['commandsTimeout'] = 60;
+		$settings['zwave']['logLevel'] = 'error';
+		$settings['zwave']['logEnabled'] = true;
+		$settings['zwave']['logToFile'] = false;
+		$settings['zwave']['serverEnabled'] = false;
+		if (config::byKey('softReset', __CLASS__,1) == 1){
+			$settings['zwave']['enableSoftReset'] = true;
+		} else {
+			$settings['zwave']['enableSoftReset'] = false;
+		}
+		$settings['zwave']['disclaimerVersion'] = 1;
+		$settings['zwave']['enableStatistics'] = false;
+		$settings['zwave']['securityKeys'] = array(
+			'S2_AccessControl' => config::byKey('s2key_access', __CLASS__),
+			'S0_Legacy' => config::byKey('s0key', __CLASS__),
+			'S2_Unauthenticated' => config::byKey('s2key_unauth', __CLASS__),
+			'S2_Authenticated' => config::byKey('s2key_auth', __CLASS__)
+		);
+		$settings['zwave']['securityKeysLongRange'] = array(
+			'S2_AccessControl' => config::byKey('s2key_access_long', __CLASS__),
+			'S2_Authenticated' => config::byKey('s2key_auth_long', __CLASS__)
+		);
 
         $settings['gateway']['type'] = 0;
         $settings['gateway']['authEnabled'] = true;
@@ -461,150 +462,160 @@ class zwavejs extends eqLogic
         $return['launchable'] = 'ok';
         $return['state'] = 'nok';
 
-        if (self::isRunning()) {
-            $return['state'] = 'ok';
-        }
+		if (self::isRunning()) {
+			$return['state'] = 'ok';
+		}
+		$zwSettings = config::byKey('zwavejs', __CLASS__, array());
+		$usbPort = $zwSettings['usb_port'];
+		if ($zwSettings['mode'] == 'local') {
+			$version = self::checkZWaveJSVersion();
+                        if ($version == 'N/A') {
+				$return['launchable'] = 'nok';
+                                $msg = "La librairie ZWaveJS n'est pas installée";
+				$return['launchable_message'] = __($msg, __FILE__);
+                                return $return;
+                        } else {
+				if (cache::byKey('zwavejs::version')->getValue() != $version)
+					cache::set('zwavejs::version', $version);
+			}
+			$usbPort = jeedom::getUsbMapping($usbPort);
+			if (@!file_exists($usbPort)) {
+				$return['launchable'] = 'nok';
+				$return['launchable_message'] = __("Le port n'est pas configuré", __FILE__);
+				return $return;
+			}
+		}
+		if (class_exists('openzwave')) {
+			if (openzwave::deamon_info()['state'] == 'ok' && $usbPort == config::byKey('port', 'openzwave')) {
+				$return['launchable'] = 'nok';
+				$return['launchable_message'] = __('Le démon OpenZwave est démarré sur le même contrôleur, il doit être stoppé.', __FILE__);
+			}
+		}
+		return $return;
+	}
 
-        $mode = config::byKey('zwavejs_mode', __CLASS__, '');
-        if ($mode == 'local') {
-            $version = self::checkZWaveJSVersion();
-            if ($version == 'N/A') {
-                $return['launchable'] = 'nok';
-                $msg = "La librairie ZWaveJS n'est pas installée";
-                $return['launchable_message'] = __($msg, __FILE__);
-                return $return;
-            } else {
-                config::save('zwavejsVersion', $version, __CLASS__);
-            }
-            $port = config::byKey('port', __CLASS__);
-            $port = jeedom::getUsbMapping($port);
-            if (@!file_exists($port)) {
-                $return['launchable'] = 'nok';
-                $return['launchable_message'] = __("Le port n'est pas configuré", __FILE__);
-                return $return;
-            }
-        }
-        if (!class_exists('mqtt2')) {
-            $return['launchable'] = 'nok';
-            $return['launchable_message'] = __("Le plugin MQTT Manager n'est pas installé", __FILE__);
-        } else {
-            if (mqtt2::deamon_info()['state'] != 'ok') {
-                $return['launchable'] = 'nok';
-                $return['launchable_message'] = __("Le démon MQTT Manager n'est pas démarré", __FILE__);
-            }
-        }
-        if (class_exists('openzwave')) {
-            if (openzwave::deamon_info()['state'] == 'ok' && config::byKey('port', __CLASS__) == config::byKey('port', 'openzwave')) {
-                $return['launchable'] = 'nok';
-                $return['launchable_message'] = __('Le démon OpenZwave est démarré sur le même contrôleur, il doit être stoppé.', __FILE__);
-            }
-        }
-        return $return;
-    }
-
-    public static function isRunning()
-    {
-        $mode = config::byKey('zwavejs_mode', __CLASS__, '');
+	public static function isRunning() {
+		$zwSettings = config::byKey('zwavejs', __CLASS__, array());
+		$mode = $zwSettings['mode'];
 //              log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] mode=' . $mode);
-        if (($mode == 'local') and (!empty(system::ps('server/bin/www.js'))))
-            return true;
-        if (($mode == 'remote') and (config::byKey('zwavejs_remotedeamon', __CLASS__, '') == "running"))
-            return true;
-        return false;
-    }
+		if (($mode == 'local') and (! empty(system::ps('server/bin/www.js'))))
+			return true;
+		if (($mode == 'remote') and (config::byKey('remoteDeamonStatus', __CLASS__,'') == "running"))
+			return true;
+		return false;
+	}
 
-    public static function deamon_start($_debug = false)
-    {
-        log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . 'Inscription au plugin mqtt2');
-        config::save('controllerStatus', 'none', __CLASS__);
-        self::deamon_stop();
-        $deamon_info = self::deamon_info();
-        if ($deamon_info['launchable'] != 'ok') {
-            throw new Exception(__('Veuillez vérifier la configuration', __FILE__));
-        }
-        $mode = config::byKey('zwavejs_mode', __CLASS__, '');
-        self::configureSettings($mode);
-        mqtt2::addPluginTopic(__CLASS__, config::byKey('prefix', __CLASS__, 'zwave'));
-        if ($mode == 'local') {
-            config::save('driverStatus', 0, __CLASS__);
-            $zwavejs_path = realpath(dirname(__FILE__) . '/../../resources/zwave-js-ui');
-            $data_path = dirname(__FILE__) . '/../../data/store';
-            chdir($zwavejs_path);
-            $cmd = '';
-            $cmd .= 'STORE_DIR=' . $data_path;
-            $cmd .= ' KEY_S0_Legacy=' . config::byKey('s0key', __CLASS__);
-            $cmd .= ' KEY_S2_Unauthenticated=' . config::byKey('s2key_unauth', __CLASS__);
-            $cmd .= ' KEY_S2_Authenticated=' . config::byKey('s2key_auth', __CLASS__);
-            $cmd .= ' KEY_S2_AccessControl=' . config::byKey('s2key_access', __CLASS__);
-            $cmd .= ' SESSION_SECRET=' . 'jeedomSession';
-            $cmd .= ' yarn start';
-            log::add(__CLASS__, 'info', __('Démarrage du démon ZwaveJS', __FILE__) . ' : ' . $cmd);
-            exec(system::getCmdSudo() . $cmd . ' >> ' . log::getPathToLog('zwavejsd') . ' 2>&1 &');
-        } else {
-            if (!self::checkZWaveJSSvc())
-                throw new Exception(__('Service ZWaveJS non démarré', __FILE__));
-            self::getInfo();
-            config::save('zwavejs_remotedeamon', 'running', __CLASS__);
-        }
-        $i = 0;
-        while ($i < 10) {
-            $deamon_info = self::deamon_info();
-            if ($deamon_info['state'] == 'ok') {
-                break;
-            }
-            sleep(1);
-            $i++;
-        }
-        if ($i >= 10) {
-            log::add(__CLASS__, 'error', __('Impossible de démarrer le démon ZwaveJS, consultez les logs', __FILE__), 'unableStartDeamon');
-            return false;
-        }
-        config::save('lastStart', time(), __CLASS__);
-        message::removeAll(__CLASS__, 'unableStartDeamon');
-        self::cleanHistory();
-        log::add(__CLASS__, 'info', 'Démon zwavejs lancé');
-        return true;
-    }
+	public static function deamon_start($_debug = false) {
+		config::save('controllerStatus', 'none', __CLASS__);
+		self::deamon_stop();
+		try {
+		   $deamon_info = self::deamon_info();
+		   if ($deamon_info['launchable'] != 'ok')
+			throw new Exception('Veuillez vérifier la configuration');
 
-    public static function deamon_stop()
-    {
-        log::add(__CLASS__, 'info', __('Arrêt du démon ZwaveJS', __FILE__));
-        config::save('controllerStatus', 'none', __CLASS__);
-        config::save('driverStatus', 0, __CLASS__);
-        mqtt2::removePluginTopic(config::byKey('prefix', __CLASS__, 'zwave'));
-        $mode = config::byKey('zwavejs_mode', __CLASS__, '');
-        if ($mode == 'local') {
-            $find = 'server/bin/www.js';
-            $cmd = "(ps ax || ps w) | grep -ie '" . $find . "' | grep -v grep | awk '{print $1}' | xargs " . system::getCmdSudo() . "kill -15 > /dev/null 2>&1";
-            exec($cmd);
-            $i = 0;
-            while ($i < 5) {
-                $deamon_info = self::deamon_info();
-                if ($deamon_info['state'] == 'nok') {
-                    break;
-                }
-                sleep(1);
-                $i++;
-            }
-            if ($i >= 5) {
-                system::kill('server/bin/www.js', true);
-                $i = 0;
-                while ($i < 5) {
-                    $deamon_info = self::deamon_info();
-                    if ($deamon_info['state'] == 'nok') {
-                        break;
-                    }
-                    sleep(1);
-                    $i++;
-                }
-            }
-            $port = config::byKey('zwavejs_adminport', __CLASS__);
-            system::fuserk($port);
-        } else {
-            config::save('zwavejs_remotedeamon', 'stopped', __CLASS__);
-            config::save('zwavejsVersion', 'N/A', __CLASS__);
-        }
-    }
+		   $mqttSettings = config::byKey('mqtt', __CLASS__);
+		   $mqttSettings['cbclass'] = 'jeeZwave';
+		   config::save('mqtt', json_encode($mqttSettings), __CLASS__);
+		   log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] settings MQTT: ' . json_encode($mqttSettings));
+		   $mqttd = self::getDeamon();
+		   $mqttd->start ($mqttSettings);
+		   sleep(1);
+		   if (! ($mqttd->isRunning()))
+			throw new Exception('Démon MQTT non démarré ou mauvais paramétrage, vérifier les logs');
+		   $mqttd->send ('addTopic',$mqttSettings['prefix']);
+		   $zwSettings = config::byKey('zwavejs', __CLASS__, array());
+		   $mode = $zwSettings['mode'];
+		   log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] settings ZWaveJS: ' . json_encode($zwSettings));
+		   self::generateSettings($mode);
+		   if ($mode == 'local') {
+			config::save('driverStatus', 0, __CLASS__);
+			$zwavejs_path = realpath(dirname(__FILE__) . '/../../resources/zwave-js-ui');
+			$data_path = dirname(__FILE__) . '/../../data/store';
+			chdir($zwavejs_path);
+			$cmd = '';
+			$cmd .= 'STORE_DIR=' . $data_path;
+			$cmd .= ' KEY_S0_Legacy=' . config::byKey('s0key', __CLASS__);
+			$cmd .= ' KEY_S2_Unauthenticated=' . config::byKey('s2key_unauth', __CLASS__);
+			$cmd .= ' KEY_S2_Authenticated=' . config::byKey('s2key_auth', __CLASS__);
+			$cmd .= ' KEY_S2_AccessControl=' . config::byKey('s2key_access', __CLASS__);
+			$cmd .= ' SESSION_SECRET=' . 'jeedomSession';
+			$cmd .= ' yarn start';
+			log::add(__CLASS__, 'info', __('Démarrage du démon ZwaveJS', __FILE__) . ' : ' . $cmd);
+			exec(system::getCmdSudo() . $cmd . ' >> ' . log::getPathToLog('zwavejsd') . ' 2>&1 &');
+		   } else {
+			if (! self::checkZWaveJSSvc())
+				throw new Exception(__('Service ZWaveJS non démarré ou mal paramétré, vérifiez les logs',__FILE__));
+			self::getInfo();
+			config::save('remoteDeamonStatus', 'running' ,__CLASS__);
+		   }
+		   $i = 0;
+		   while ($i < 10) {
+			$deamon_info = self::deamon_info();
+			if ($deamon_info['state'] == 'ok') {
+				break;
+			}
+			sleep(1);
+			$i++;
+		   }
+		   if ($i >= 10) {
+			throw new Exception('Impossible de démarrer le démon ZwaveJS, consultez les logs');
+			//log::add(__CLASS__, 'error', __('Impossible de démarrer le démon ZwaveJS, consultez les logs', __FILE__), 'unableStartDeamon');
+			//return false;
+		   }
+		   config::save('lastStart', time(), __CLASS__);
+		   message::removeAll(__CLASS__, 'unableStartDeamon');
+		   self::cleanHistory();
+		   log::add(__CLASS__, 'info', 'Démon zwavejs lancé');
+		   event::add('zwavejs::refreshStatus',array());
+		   return true;
+		} catch (Exception $e) {
+		   self::send_alert ($e->getMessage());
+		   return false;
+		}
+	}
+
+	public static function deamon_stop() {
+		log::add(__CLASS__, 'info', __('Arrêt du démon ZwaveJS', __FILE__));
+		config::save('controllerStatus', 'none', __CLASS__);
+		config::save('driverStatus', 0, __CLASS__);
+		$zwSettings = config::byKey('zwavejs', __CLASS__, array());
+		$mqttSettings = config::byKey('mqtt', __CLASS__,array());
+		$mqttd = self::getDeamon();
+		if ($mqttd->isRunning()) {
+			$mqttd->send ('removeTopic',$mqttSettings['prefix']);
+			$mqttd->stop();
+		}
+		if ($zwSettings['mode'] == 'local') {
+			$find = 'server/bin/www.js';
+			$cmd = "(ps ax || ps w) | grep -ie '" . $find . "' | grep -v grep | awk '{print $1}' | xargs " . system::getCmdSudo() . "kill -15 > /dev/null 2>&1";
+			exec($cmd);
+			$i = 0;
+			while ($i < 5) {
+				$deamon_info = self::deamon_info();
+				if ($deamon_info['state'] == 'nok') {
+					break;
+				}
+				sleep(1);
+				$i++;
+			}
+			if ($i >= 5) {
+				system::kill('server/bin/www.js', true);
+				$i = 0;
+				while ($i < 5) {
+					$deamon_info = self::deamon_info();
+					if ($deamon_info['state'] == 'nok') {
+						break;
+					}
+					sleep(1);
+					$i++;
+				}
+			}
+			system::fuserk($zwSettings['port']);
+		} else {
+			config::save('remoteDeamonStatus','stopped',__CLASS__);
+			cache::set('zwavejs::version', 'N/A');
+		}
+	}
 
     public static function generateRandomKey()
     {
@@ -641,58 +652,59 @@ class zwavejs extends eqLogic
         return $result;
     }
 
-    public static function handleMqttMessage($_message)
-    {
-        log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . 'Message Mqtt reçu');
-        log::add(__CLASS__, 'debug', json_encode($_message));
+	public static function handleMqttMessage($_message) {
+		log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . 'Message Mqtt reçu');
+		log::add(__CLASS__, 'debug', json_encode($_message));
+		$mqttSettings = config::byKey('mqtt', __CLASS__,array());
+		$prefix = $mqttSettings['prefix'];
+		if (isset($prefix))
+			$message = $_message[$prefix];
+		else {
+			log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . __("Le message reçu n'est pas un message Z-Wave: " . $_message, __FILE__));
+			return;
+		}
+		foreach ($message as $key => $value) {
+			if ($key == '_EVENTS') {
+				log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . 'Le message est un event');
+				self::handleEvents($value);
+			} else if ($key == '_CLIENTS') {
+				log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . 'Le message est une réponse api Client');
+				self::handleClients($value);
+			} else if (is_int($key)) {
+				log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . 'Le message est un event direct');
+				self::handleNodeValueUpdateDirect($key, $value);
+			} else if ($key == 'driver') {
+				log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . 'Le message est une info driver');
+				if (isset($value['status'])) {
+					config::save('driverStatus', $value['status'], __CLASS__);
+					event::add('zwavejs::driverStatus', array('status' => $value['status']));
+				}
+			} else {
+				log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . __('Le message reçu est de type inconnu', __FILE__));
+			}
+		}
+	}
 
-        if (isset($_message[config::byKey('prefix', __CLASS__, 'zwave')])) {
-            $message = $_message[config::byKey('prefix', __CLASS__, 'zwave')];
-        } else {
-            log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . __("Le message reçu n'est pas un message Z-Wave", __FILE__));
-            return;
-        }
-        foreach ($message as $key => $value) {
-            if ($key == '_EVENTS') {
-                //			log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . 'Le message est un event');
-                self::handleEvents($value);
-            } else if ($key == '_CLIENTS') {
-                //			log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . 'Le message est une réponse api Client');
-                self::handleClients($value);
-            } else if (is_int($key)) {
-                //			log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . 'Le message est un event direct');
-                self::handleNodeValueUpdateDirect($key, $value);
-            } else if ($key == 'driver') {
-                //			log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . 'Le message est une info driver');
-                if (isset($value['status'])) {
-                    config::save('driverStatus', $value['status'], __CLASS__);
-                    event::add('zwavejs::driverStatus', array('status' => $value['status']));
-                }
-            } else {
-                log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . __('Le message reçu est de type inconnu', __FILE__));
-            }
-        }
-    }
-
-    public static function handleClients($_clients)
-    {
-        //	log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . "Traitement d'un Client Api");
-        //	log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . json_encode($_clients));
-        $gateway = array_key_first($_clients);
-        $client = $_clients[$gateway];
-        foreach ($client as $key => $value) {
-            // log::add(__CLASS__, 'debug', $key);
-            if ($key == 'api') {
-                self::handleApi($value);
-            } else if ($key == 'version') {
-                config::save('zwavejsVersion', $value['value'], __CLASS__);
-                if (config::byKey('wantedVersion', __CLASS__) != config::byKey('zwavejsVersion', __CLASS__)) {
-                    sleep(2);
-                    message::add('zwavejs', __("Votre version de ZwaveJS UI n'est pas celle recommandée par le plugin. Vous utilisez actuellement la version ", __FILE__) . config::byKey('zwavejsVersion', __CLASS__) . '. ' . __('Le plugin nécessite la version ', __FILE__) . config::byKey('wantedVersion', __CLASS__) . '. ' . __('Veuillez relancer les dépendances pour mettre à jour la librairie.', __FILE__));
-                }
-            }
-        }
-    }
+	public static function handleClients($_clients) {
+		log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . "Traitement d'un Client Api");
+		log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . json_encode($_clients));
+		$gateway = array_key_first($_clients);
+		$client = $_clients[$gateway];
+		foreach ($client as $key => $value) {
+			if ($key == 'api') {
+				self::handleApi($value);
+			}
+			else if ($key == 'version') {
+				cache::set('zwavejs::version', $value['value']);
+/*
+				if (config::byKey('wantedVersion', __CLASS__) != config::byKey('zwavejsVersion', __CLASS__)){
+					sleep(2);
+					message::add('zwavejs',__("Votre version de ZwaveJS UI n'est pas celle recommandée par le plugin. Vous utilisez actuellement la version ", __FILE__). config::byKey('zwavejsVersion', __CLASS__) .'. '.__('Le plugin nécessite la version ', __FILE__). config::byKey('wantedVersion', __CLASS__) .'. '.__('Veuillez relancer les dépendances pour mettre à jour la librairie.', __FILE__));
+				}
+*/
+			}
+		}
+	}
 
     public static function handleEvents($_events)
     {
@@ -710,83 +722,82 @@ class zwavejs extends eqLogic
         }
     }
 
-    public static function handleApi($_api)
-    {
-        // log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . "Traitement d'un retour api");
-        // log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . json_encode($_api));
-        foreach ($_api as $key => $value) {
-            if ($key == 'abortFirmwareUpdate') {
-                if (isset($value['success']) && $value['success']) {
-                    event::add('zwavejs::firmware_update', array('node' => $value['args'][0], 'cancel' => true));
-                }
-            } else if ($key == 'restoreNVM') {
-                if (isset($value['success']) && !$value['success']) {
-                    event::add('zwavejs::restoreNVM', array('message' => $value['message']));
-                }
-            } else if ($key == 'getInfo') {
-                self::addFileEvent('getInfo', $value['result']);
+	public static function handleApi($_api) {
+		log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . "Traitement d'un retour api");
+		log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . json_encode($_api));
+		foreach ($_api as $key => $value) {
+			if ($key == 'abortFirmwareUpdate') {
+				if (isset($value['success']) && $value['success']) {
+					event::add('zwavejs::firmware_update',array('node' => $value['args'][0], 'cancel'=>true));
+				}
+			} else if ($key == 'restoreNVM') {
+				if (isset($value['success']) && !$value['success']) {
+					event::add('zwavejs::restoreNVM',array('message' => $value['message']));
+				}
+			} else if ($key == 'getInfo') {
+				self::addFileEvent('getInfo', $value['result']);
 
-                if (isset($value['result']['controllerId'])) {
-                    config::save('controllerId', $value['result']['controllerId'], __CLASS__);
-                }
-                if (isset($value['result']['appVersion'])) {
-                    $version = array_slice(explode('.', $value['result']['appVersion']), 0, 3);
-                    config::save('zwavejsVersion', implode('.', $version), __CLASS__);
-                    event::add('zwavejs::version_updated', array());
-                }
-            } else if ($key == 'getNodes') {
-                if ($value['origin']['type'] == 'sync') {
-                    self::syncNodes($value['result']);
-                } else if ($value['origin']['type'] == 'stats') {
-                    $stats = array();
-                    $stats['totalNodes'] = count($value['result']);
-                    $sleepingNodes = 0;
-                    $networkTree = array('controllerId' => config::byKey('controllerId', __CLASS__, 0), 'data' => array());
-                    $data = array();
-                    foreach ($value['result'] as $node) {
-                        $data = $node;
-                        $eqLogic = self::byLogicalId($node['id'], __CLASS__);
-                        if (is_object($eqLogic)) {
-                            $data['eqName'] = $eqLogic->getHumanName(true);
-                            $data['name'] = $eqLogic->getHumanName();
-                            $data['img'] = $eqLogic->getImage();
-                        } else {
-                            $data['img'] = 'plugins/zwavejs/plugin_info/zwavejs_icon.png';
-                        }
-                        // log::add(__CLASS__, 'debug', json_encode($node));
-                        if ($node['id'] == config::byKey('controllerId', __CLASS__, 0)) {
-                            $stats['controllerNeighbors'] = implode(' - ', $node['neighbors']);
-                            $stats['stats'] = $node['statistics'];
-                        }
-                        if ($node['status'] == 'Asleep') {
-                            $sleepingNodes += 1;
-                        }
-                        unset($data['deviceConfig']);
-                        unset($data['values']);
-                        $networkTree['data'][$data['id']] = $data;
-                    }
-                    $stats['sleepingNodes'] = $sleepingNodes;
-                    $stats['networkTree'] = $networkTree;
-                    self::addFileEvent('getNodeStats', $stats);
-                } else if ($value['origin']['type'] == 'getNodeInfo') {
-                    foreach ($value['result'] as $node) {
-                        if ($node['id'] == $value['origin']['node']) {
-                            $node['neighbors'] = implode(' - ', $node['neighbors']);
-                            if (isset($node['deviceConfig']['filename']) && $node['deviceConfig']['filename'] != '') {
-                                $explodeFile = explode('/', $node['deviceConfig']['filename']);
-                                $fileExt = '(Jeedom)';
-                                if (in_array('@zwave-js', $explodeFile)) {
-                                    $fileExt = '(Zwave-Js)';
-                                }
-                                $node['filename'] = end($explodeFile) . ' ' . $fileExt;
-                            } else {
-                                $node['filename'] = 'Aucun';
-                            }
-                            $node['numberGroups'] = count($node['groups']);
-                            $node['classBasic'] = $node['deviceClass']['basic'];
-                            $node['classGeneric'] = $node['deviceClass']['generic'];
-                            $node['classSpecific'] = $node['deviceClass']['specific'];
-                            $node['deviceIdNew'] = $node['manufacturerId'] . '-' . $node['productType'] . '-' . $node['productId'];
+				if (isset($value['result']['controllerId'])) {
+					config::save('controllerId', $value['result']['controllerId'], __CLASS__);
+				}
+				if (isset($value['result']['appVersion'])) {
+					$version = array_slice(explode('.', $value['result']['appVersion']),0,3);
+					cache::set('zwavejs::version', implode('.',$version));
+					event::add('zwavejs::version_updated', array());
+				}
+			} else if ($key == 'getNodes') {
+				if ($value['origin']['type'] == 'sync') {
+					self::syncNodes($value['result']);
+				} else if ($value['origin']['type'] == 'stats') {
+					$stats = array();
+					$stats['totalNodes'] = count($value['result']);
+					$sleepingNodes = 0;
+					$networkTree = array('controllerId' => config::byKey('controllerId', __CLASS__, 0), 'data' => array());
+					$data = array();
+					foreach ($value['result'] as $node) {
+						$data = $node;
+						$eqLogic = self::byLogicalId($node['id'], __CLASS__);
+						if (is_object($eqLogic)) {
+							$data['eqName'] = $eqLogic->getHumanName(true);
+							$data['name'] = $eqLogic->getHumanName();
+							$data['img'] = $eqLogic->getImage();
+						} else {
+							$data['img'] = 'plugins/zwavejs/plugin_info/zwavejs_icon.png';
+						}
+						// log::add(__CLASS__, 'debug', json_encode($node));
+						if ($node['id'] == config::byKey('controllerId', __CLASS__, 0)) {
+							$stats['controllerNeighbors'] = implode(' - ', $node['neighbors']);
+							$stats['stats'] = $node['statistics'];
+						}
+						if ($node['status'] == 'Asleep') {
+							$sleepingNodes += 1;
+						}
+						unset($data['deviceConfig']);
+						unset($data['values']);
+						$networkTree['data'][$data['id']] = $data;
+					}
+					$stats['sleepingNodes'] = $sleepingNodes;
+					$stats['networkTree'] = $networkTree;
+					self::addFileEvent('getNodeStats', $stats);
+				} else if ($value['origin']['type'] == 'getNodeInfo') {
+					foreach ($value['result'] as $node) {
+						if ($node['id'] == $value['origin']['node']) {
+							$node['neighbors'] = implode(' - ', $node['neighbors']);
+							if (isset($node['deviceConfig']['filename']) && $node['deviceConfig']['filename'] != '') {
+								$explodeFile = explode('/', $node['deviceConfig']['filename']);
+								$fileExt = '(Jeedom)';
+								if (in_array('@zwave-js', $explodeFile)) {
+									$fileExt = '(Zwave-Js)';
+								}
+								$node['filename'] = end($explodeFile) . ' ' . $fileExt;
+							} else {
+								$node['filename'] = 'Aucun';
+							}
+							$node['numberGroups'] = count($node['groups']);
+							$node['classBasic'] = $node['deviceClass']['basic'];
+							$node['classGeneric'] = $node['deviceClass']['generic'];
+							$node['classSpecific'] = $node['deviceClass']['specific'];
+							$node['deviceIdNew'] = $node['manufacturerId'] . '-' . $node['productType'] . '-' . $node['productId'];
 
                             $eqLogic = self::byLogicalId($node['id'], __CLASS__);
                             $node['confJeedom'] = '-';
@@ -1051,72 +1062,26 @@ class zwavejs extends eqLogic
         }
     }
 
-    public static function handleNodeValueUpdateDirect($_nodeId, $_value_update)
-    {
-        // log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . "Traitement d'un update de value d'un node direct");
-        // log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . $_nodeId . ' ' . json_encode($_value_update));
-        $eqLogic = self::byLogicalId($_nodeId, __CLASS__);
-        $flatten = self::flatten_array($_value_update);
-        // log::add(__CLASS__, 'debug', json_encode($flatten, true));
-        if (is_object($eqLogic)) {
-            if ($eqLogic->getIsEnable()) {
-                // log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . "Le nœud avec l'id : " . $_nodeId . ' existe ' . $eqLogic->getHumanName());
-                foreach ($flatten as $key => $data) {
-                    if ($key == 'status') {
-                        $currentValue = $eqLogic->getCmd(null, '0-0-nodeStatus')->execCmd();
-                        $eqLogic->updateCmd('0-0-nodeStatus', $data['status']);
-                        if ($data['status'] == 'Awake') {
-                            $eqLogic->setConfiguration('lastWakeUp', time());
-                            if ($eqLogic->getConfiguration('missedWakeup', false)) {
-                                $action = '<a href="/' . $eqLogic->getLinkToConfiguration() . '">' . __('Equipement', __FILE__) . '</a>';
-                                if ((config::byKey('notifyMissWakeup', __CLASS__, 1) == 1) && ($eqLogic->getIsEnable() == 1)) {
-                                    if (version_compare(jeedom::version(), '4.4.0', '>=')) {
-                                        message::add('zwavejs', "L'équipement : " . $eqLogic->getHumanName(true) . ' avec le nodeId : ' . $eqLogic->getLogicalId() . ', vient de se réveiller après avoir raté au minimum 4 réveils.', $action, 'Awake-' . $eqLogic->getLogicalId(), true, 'alerting');
-                                    } else {
-                                        message::add('zwavejs', "L'équipement : " . $eqLogic->getHumanName(true) . ' avec le nodeId : ' . $eqLogic->getLogicalId() . ', vient de se réveiller après avoir raté au minimum 4 réveils.', $action, 'Awake-' . $eqLogic->getLogicalId(), true);
-                                    }
-                                }
-                            }
-                            $eqLogic->setConfiguration('missedWakeup', false);
-                            $eqLogic->save();
-                        }
-                        if ($data['status'] == 'Dead' && $currentValue == 'Alive') {
-                            $action = '<a href="/' . $eqLogic->getLinkToConfiguration() . '">' . __('Equipement', __FILE__) . '</a>';
-                            if ((config::byKey('notifyDead', __CLASS__, 1) == 1) && ($eqLogic->getIsEnable() == 1)) {
-                                if (version_compare(jeedom::version(), '4.4.0', '>=')) {
-                                    message::add('zwavejs', "L'équipement : " . $eqLogic->getHumanName(true) . ' avec le nodeId : ' . $eqLogic->getLogicalId() . ', vient de passer au statut Dead.', $action, 'Dead-' . $eqLogic->getLogicalId(), true, 'alerting');
-                                } else {
-                                    message::add('zwavejs', "L'équipement : " . $eqLogic->getHumanName(true) . ' avec le nodeId : ' . $eqLogic->getLogicalId() . ', vient de passer au statut Dead.', $action, 'Dead-' . $eqLogic->getLogicalId(), true);
-                                }
-                            }
-                        }
-                        if ($data['status'] == 'Alive' && $currentValue == 'Dead') {
-                            $action = '<a href="/' . $eqLogic->getLinkToConfiguration() . '">' . __('Equipement', __FILE__) . '</a>';
-                            if ((config::byKey('notifyDead', __CLASS__, 1) == 1) && ($eqLogic->getIsEnable() == 1)) {
-                                if (version_compare(jeedom::version(), '4.4.0', '>=')) {
-                                    message::add('zwavejs', "L'équipement : " . $eqLogic->getHumanName(true) . ' avec le nodeId : ' . $eqLogic->getLogicalId() . ', vient de passer au statut Alive.', $action, 'Alive-' . $eqLogic->getLogicalId(), true, 'alertingReturnBack');
-                                } else {
-                                    message::add('zwavejs', "L'équipement : " . $eqLogic->getHumanName(true) . ' avec le nodeId : ' . $eqLogic->getLogicalId() . ', vient de passer au statut Alive.', $action, 'Alive-' . $eqLogic->getLogicalId(), true);
-                                }
-                            }
-                        }
-                    } else if (isset($data['value'])) {
-                        $eqLogic->updateCmd($key, $data['value']);
-                    } else if (strpos($key, 'scene-')) {
-                        $eqLogic->updateCmd($key, 90);
-                    } else if ($key == '51-0-currentColor-value') {
-                        $eqLogic->updateCmd('51-0-currentColor', $data);
-                    }
-                }
-            }
-        }
-    }
+	public static function publishMqttApi($_api_name, $_args = array()) {
+		log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . 'Publication Mqtt Api ' . $_api_name . ' ' . json_encode($_args));
+		$mqttSettings = config::byKey('mqtt', __CLASS__,array());
+		$topic = $mqttSettings['prefix'] . '/_CLIENTS/ZWAVE_GATEWAY-'. $mqttSettings['gateway'] . '/api/' . $_api_name . '/set';
+		self::getDeamon()->send('publish',$topic, $_args);
+	}
 
-    public static function publishMqttApi($_api_name, $_args = array())
-    {
-        // log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . 'Publication Mqtt Api ' . $_api_name . ' ' . json_encode($_args));
-        mqtt2::publish(config::byKey('prefix', __CLASS__, 'zwave') . '/_CLIENTS/ZWAVE_GATEWAY-Jeedom/api/' . $_api_name . '/set', $_args);
-    }
+	public static function publishMqttValue($_node, $_path, $_args = array()) {
+		// log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . 'Publication Mqtt Value' . $_node . ' ' . $_path . ' ' . json_encode($_args));
+		$mqttSettings = config::byKey('mqtt', __CLASS__,array());
+		$topic = $mqttSettings['prefix'] . '/' . $_node . '/' . $_path . '/set';
+		self::getDeamon()->send('publish',$topic, $_args);
+	}
+
+	public static function cleanHistory() {
+		foreach (self::byType(__CLASS__) as $eqLogic) {
+			$eqLogic->setCache('waiting',array());
+		}
+		return ;
+	}
 
     public static function publishMqttValue($_node, $_path, $_args = array())
     {
@@ -2279,69 +2244,17 @@ class zwavejs extends eqLogic
         return;
     }
 
-    public function getEqLogicInfos()
-    {
-        $result = array();
-        $result['interview'] = $this->getConfiguration('interview', false);
-        $command_counter = 0;
-        foreach ($this->getCmd() as $cmd) {
-            if (!in_array($cmd->getLogicalId(), array('0-0-nodeStatus', '0-0-pingNode', '0-0-healNode', '0-0-isFailedNode'))) {
-                $command_counter += 1;
-            }
-        }
-        $result['command_counter'] = strval($command_counter);
-        if (!is_file(dirname(__FILE__) . '/../config/devices/' . $this->getConfFilePath())) {
-            return $result;
-        }
-        $device = is_json(file_get_contents(dirname(__FILE__) . '/../config/devices/' . $this->getConfFilePath()), array());
-        if (!is_array($device) || (!isset($device['commands']) && !isset($device['properties']))) {
-            return $result;
-        }
-        if (isset($device['modes'])) {
-            $result['modes'] = $device['modes'];
-            $result['actualMode'] = $this->getConfiguration('confMode', '');
-        } else {
-            $result['modes'] = 'aucun';
-        }
-        if (isset($device['assistant'])) {
-            $result['assistant'] = $device['assistant'];
-        }
-        $result['confType'] = 'Configuration Jeedom <br>';
-        if (isset($device['properties']) && count($device['properties']) > 0) {
-            if (isset($device['firmProperties']) && $device['firmProperties'] == 1) {
-                $found = false;
-                foreach ($device['properties'] as $firm => $property) {
-                    if ($firm != 'default') {
-                        if (evaluate($this->getConfiguration('firmwareVersion') . $firm) === true) {
-                            $device['properties'] = $property;
-                            $found = true;
-                            break;
-                        }
-                    }
-                }
-                if (!$found) {
-                    $device['properties'] = $device['properties']['default'];
-                }
-            }
-            $result['confType'] .= 'Properties : <br>';
-            foreach ($device['properties'] as $property => $value) {
-                if (isset($value['mode']) && $value['mode'] != $this->getConfiguration('confMode', '')) {
-                    continue;
-                }
-                $result['confType'] .= '  -' . $property . ' : ' . json_encode($value) . '<br>';
-            }
-        }
-        if (isset($device['commands']) && count($device['commands']) > 0) {
-            $result['confType'] .= 'Commands : <br>';
-            foreach ($device['commands'] as $command) {
-                $result['confType'] .= '  -' . $command['name'] . '<br>';
-            }
-        }
-        if (isset($device['recommended'])) {
-            $result['recommended'] = $device['recommended'];
-        }
-        return $result;
-    }
+	public function createCommand($_update = 0) {
+		log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] id:' . $this->getLogicalId() . ' name: ' .  $this->getName());
+		if (!is_numeric($this->getLogicalId())) {
+			return;
+		}
+		if (is_file(dirname(__FILE__) . '/../config/devices/' . $this->getConfFilePath())) {
+			$this->loadCmdFromConf($_update);
+			self::nodeAction('syncValues', $this->getLogicalId());
+			return;
+		}
+	}
 
     public function postSave()
     {
