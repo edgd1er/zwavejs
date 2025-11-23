@@ -18,17 +18,17 @@
 require_once dirname(__FILE__) . '/../../../core/php/core.inc.php';
 include_file('core', 'authentification', 'php');
 if (!isConnect('admin')) {
-	throw new Exception('{{401 - Accès non autorisé}}');
+    throw new Exception('{{401 - Accès non autorisé}}');
 }
 ?>
 <form class="form-horizontal">
-	<fieldset>
-		<div class="col-lg-6">
-			<div class="form-group">
-				<label class="col-lg-4 control-label">{{Mode ZWaveJS}}
-					<sup><i class="fas fa-question-circle tooltips" title="{{Mode du deamon ZWaveJS. défaut: distant}}"></i></sup>
-				</label>
-				<div class="col-md-6">
+    <fieldset>
+        <div class="col-lg-6">
+            <div class="form-group">
+                <label class="col-lg-4 control-label">{{Mode ZWaveJS}}
+                    <sup><i class="fas fa-question-circle tooltips" title="{{Mode du deamon ZWaveJS. défaut: distant}}"></i></sup>
+                </label>
+                <div class="col-md-6">
 					<select class="configKey form-control" data-l1key="zwavejs" data-l2key="mode">
 						<option value="remote" selected>{{distant (défaut)}}</option>
 						<option value="local">{{local}}</option>

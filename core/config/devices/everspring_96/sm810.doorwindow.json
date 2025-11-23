@@ -13,7 +13,7 @@
     "properties": {
         "Opening": {},
         "Tamper": {},
-		"Notification|power-status": {"type":"power-status"},
+        "Notification|power-status": {"type":"power-status"},
         "Battery": {}
     }
 }

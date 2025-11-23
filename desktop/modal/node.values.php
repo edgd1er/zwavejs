@@ -16,12 +16,12 @@
 */
 
 if (!isConnect('admin')) {
-	throw new Exception('401 - {{Accès non autorisé}}');
+    throw new Exception('401 - {{Accès non autorisé}}');
 }
 sendVarToJs('nodeId', init('id'));
 ?>
 <div id="div_nodeValuesZwaveJsAlert" style="display: none;"></div>
 <div class="modalNodeValues">
-	<div class="getNodeInfo-nodeValues"></div>
+    <div class="getNodeInfo-nodeValues"></div>
 </div>
 <?php include_file('desktop', 'nodeValues', 'js', 'zwavejs'); ?>
