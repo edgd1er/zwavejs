@@ -97,9 +97,9 @@ Ce bouton présent sur la page d'un équipement permet de visualiser les informa
 - **Résumé** : Affiche toutes les informations d'identification du module ainsi que les informations de statut.
 
 - **Actions** : Permet d'exécuter des actions techniques sur un nœud. Chaque action y est décrite de manière succinte.
-	>**INFORMATION**
-	>
-	>Vous ne devriez normalement jamais avoir à toucher ces fonctions, le plugin gèrant cela de lui-même.
+    >**INFORMATION**
+    >
+    >Vous ne devriez normalement jamais avoir à toucher ces fonctions, le plugin gèrant cela de lui-même.
 
 - **Statistiques** : comme son nom l'indique, il permet de voir les statistiques de communication du module.
 

@@ -97,9 +97,9 @@ Este botão presente na página de um dispositivo permite visualizar as informa�
 - **Resumo** : Exibe todas as informações de identificação do módulo, bem como informações de status.
 
 - **Ações** : Permite realizar ações técnicas em um nó. Cada ação é descrita sucintamente.
-	>**EM FORMAÇÃO**
-	>
-	>Normalmente, você nunca deve tocar nessas funções, o plug-in lida com isso por conta própria.
+    >**EM FORMAÇÃO**
+    >
+    >Normalmente, você nunca deve tocar nessas funções, o plug-in lida com isso por conta própria.
 
 - **Estatisticas** : como o próprio nome sugere, permite ver as estatísticas de comunicação do módulo.
 

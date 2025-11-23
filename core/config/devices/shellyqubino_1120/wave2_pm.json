@@ -9,7 +9,7 @@
         ]
     },
     "properties": {
-		"Switch": {"multi": [1,2],"replace": {"#endpoint#": "multiKey"}},
+        "Switch": {"multi": [1,2],"replace": {"#endpoint#": "multiKey"}},
         "Power": {"multi": [1,2],"replace": {"#endpoint#": "multiKey"}},
         "Energy": {"multi": [1,2],"replace": {"#endpoint#": "multiKey"}},
         "Notification|Heat":{"type":"heat-sensor","multi": [1,2],"replace": {"#endpoint#": "multiKey"}},

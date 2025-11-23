@@ -17,14 +17,14 @@
  */
 
 try {
-	require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
-	include_file('core', 'authentification', 'php');
+    require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
+    include_file('core', 'authentification', 'php');
 
-	if (!isConnect('admin')) {
-		throw new Exception('401 Unauthorized');
-	}
-	
-	ajax::init(array('uploadNVMbackup','uploadOTA','uploadOTW'));
+    if (!isConnect('admin')) {
+        throw new Exception('401 Unauthorized');
+    }
+    
+    ajax::init(array('uploadNVMbackup','uploadOTA','uploadOTW'));
 
 	if (init('action') == 'include') {
 		zwavejs::inclusion(init('method'), init('options'));

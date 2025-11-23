@@ -15,13 +15,13 @@ Il ne nécessite plus le plugin `mqtt2`.
 - [Mode local](#mode-local)
 - [Mode distant](#mode-distant)
 
-	- [Option1: installation depuis le plugin officiel](option1-installation-depuis-le-plugin-officiel)
-	- [Option2: paramétrage d'une antenne existante](option2-parametrage-d-une-antenne-existante)
-	- [Installation de l'image sur le serveur distant](installation-de-l-image-sur-le-serveur-distant)
-	- [Démarrage et arrêt du container ZWaveJS](demarrage-et-arret-du-container-zwavejs)
-	- [Vérification du service ZWaveJS et lancement du plugin](verification-du-service-zwavejs-et-lancement-du-plugin)
-	
-- [Paramètrage du plugin](#parametrage-du-plugin)	
+    - [Option1: installation depuis le plugin officiel](option1-installation-depuis-le-plugin-officiel)
+    - [Option2: paramétrage d'une antenne existante](option2-parametrage-d-une-antenne-existante)
+    - [Installation de l'image sur le serveur distant](installation-de-l-image-sur-le-serveur-distant)
+    - [Démarrage et arrêt du container ZWaveJS](demarrage-et-arret-du-container-zwavejs)
+    - [Vérification du service ZWaveJS et lancement du plugin](verification-du-service-zwavejs-et-lancement-du-plugin)
+    
+- [Paramètrage du plugin](#parametrage-du-plugin)    
 - [FAQ et dépannage](#faq-et-depannage)
 - [Changelog](#changelog)
 
@@ -64,14 +64,14 @@ Procédure à suivre si vous avez déjà le plugin officiel `zwavejs` et que vou
 
 Copier et extraire l'archive générée `data/remote/docker_config.tar.gz` dans un répertoire local sur la machine distante ex:
 
-	remote$ sudo mkdir -p /root/store/zwavejs
-	remote$ cd /root/store/zwavejs
-	remote$ sudo tar xvfz /tmp/docker_config.tar.gz
+    remote$ sudo mkdir -p /root/store/zwavejs
+    remote$ cd /root/store/zwavejs
+    remote$ sudo tar xvfz /tmp/docker_config.tar.gz
 
 <p>Vous devez obtenir l'arborescence suivante sur la machine distante:
 
-	/root/store/zwavejs/config.json
-	/root/store/zwavejs/config/
+    /root/store/zwavejs/config.json
+    /root/store/zwavejs/config/
 
 <p>Optionnel: copier et utiliser le script `resources/zwavejs` sur la machine distante pour gérer le container
 
@@ -93,16 +93,16 @@ Attention! Les settings en <span style="color:red">rouge</span> sont ceux qui so
 
 Si elle n'est pas déjà présente installer l'image `zwave-js-ui` sur le docker distant:
 
-	remote$ sudo docker pull zwavejs/zwave-js-ui
-	
+    remote$ sudo docker pull zwavejs/zwave-js-ui
+    
 ou installation + démarrage du container:
-	
-	remote$ sudo zwavejs start
+    
+    remote$ sudo zwavejs start
 
 ### Démarrage du container ZWaveJS et lancement du plugin
 
-	remote$ sudo zwavejs 
-	usage: zwavejs {start|stop|restart|status}
+    remote$ sudo zwavejs 
+    usage: zwavejs {start|stop|restart|status}
 
 Si vous utilisez un répertoire local différent de `/root/store/zwavejs` modifiez le dans le script
 
@@ -153,6 +153,9 @@ Vérifiez la communication en cliquant sur le bouton `Tester`
 * Si ca ne suffit pas comparez les 2 fichiers de configuration `zwavejs/data/store/settings.json` et `/root/store/zwavejs/config.json`
 
 ## Changelog
+
+* v3.1 [lxrootard](https://github.com/lxrootard)
+<br> - dependancy fix for Jeedom 4.5 + bugfix
 * v3 [lxrootard](https://github.com/lxrootard)
 <br> - Suppression de la dépendance au plugin mqtt2
 <br> - Ajout d'un onglet pour les commandes ZWaveJS et filtres sur les commandes

@@ -15,72 +15,72 @@
 */
 
 function network_load_nodes() {
-	jeedom.zwavejs.network.getNodes({
-		info: 'getNodes',
-		mode: 'stats',
-		global: false,
-		error: function(error) {
-			$('#div_networkStatAlert').showAlert({ message: error.message, level: 'danger' })
-			if ($('.modalStatsValues').is(":visible")) {
-				getNodes = setTimeout(function() { network_load_nodes() }, 2000)
-			}
-		},
-		success: function() {
-			if ($('.modalStatsValues').is(":visible")) {
-				getNodes = setTimeout(function() { network_load_nodes() }, 2000)
-			}
-		}
-	})
+    jeedom.zwavejs.network.getNodes({
+        info: 'getNodes',
+        mode: 'stats',
+        global: false,
+        error: function(error) {
+            $('#div_networkStatAlert').showAlert({ message: error.message, level: 'danger' })
+            if ($('.modalStatsValues').is(":visible")) {
+                getNodes = setTimeout(function() { network_load_nodes() }, 2000)
+            }
+        },
+        success: function() {
+            if ($('.modalStatsValues').is(":visible")) {
+                getNodes = setTimeout(function() { network_load_nodes() }, 2000)
+            }
+        }
+    })
 }
 
 function network_read_stats() {
-	jeedom.zwavejs.file.get({
-		node: '',
-		type: 'nodeStats',
-		global: false,
-		error: function(error) {
-			$('#div_networkStatAlert').showAlert({ message: error.message, level: 'danger' })
-			if ($('.modalStatsValues').is(":visible")) {
-				getstats = setTimeout(function() { network_read_stats() }, 2000)
-			}
-		},
-		success: function(nodeStats) {
-			if (typeof (nodeStats.networkTree) != "undefined") {
-				for (key in nodeStats.networkTree.data) {
-					value = nodeStats.networkTree.data[key]
-					if (typeof (value.statistics) != "undefined") {
-						stats = value.statistics
-						if (typeof (stats.messagesRX) != "undefined") {
-							$('.rx' + key).empty().append(stats.messagesRX)
-						}
-						if (typeof (stats.commandsRX) != "undefined") {
-							$('.rx' + key).empty().append(stats.commandsRX)
-						}
-						if (typeof (stats.messagesTX) != "undefined") {
-							$('.tx' + key).empty().append(stats.messagesTX)
-						}
-						if (typeof (stats.commandsTX) != "undefined") {
-							$('.tx' + key).empty().append(stats.commandsTX)
-						}
-						if (typeof (stats.timeoutResponse) != "undefined") {
-							$('.timeout' + key).empty().append(stats.timeoutResponse)
-						}
-						if (typeof (stats.rtt) != "undefined") {
-							$('.rtt' + key).empty().append(stats.rtt + 'ms')
-						}
-						if (typeof (stats.lwr) != "undefined"){
-								if (key in eqLogic_human_name){
-									valueStat = eqLogic_human_name[key]
-								} else {
-									valueStat = key
-								}
-								for (route in stats.lwr.repeaters){
-									if (stats.lwr.repeaters[route] in eqLogic_human_name){
-										valueStat += ' → ' + eqLogic_human_name[stats.lwr.repeaters[route]]
-									} else {
-										valueStat += ' → ' + stats.lwr.repeaters[route]
-									}
-								}
+    jeedom.zwavejs.file.get({
+        node: '',
+        type: 'nodeStats',
+        global: false,
+        error: function(error) {
+            $('#div_networkStatAlert').showAlert({ message: error.message, level: 'danger' })
+            if ($('.modalStatsValues').is(":visible")) {
+                getstats = setTimeout(function() { network_read_stats() }, 2000)
+            }
+        },
+        success: function(nodeStats) {
+            if (typeof (nodeStats.networkTree) != "undefined") {
+                for (key in nodeStats.networkTree.data) {
+                    value = nodeStats.networkTree.data[key]
+                    if (typeof (value.statistics) != "undefined") {
+                        stats = value.statistics
+                        if (typeof (stats.messagesRX) != "undefined") {
+                            $('.rx' + key).empty().append(stats.messagesRX)
+                        }
+                        if (typeof (stats.commandsRX) != "undefined") {
+                            $('.rx' + key).empty().append(stats.commandsRX)
+                        }
+                        if (typeof (stats.messagesTX) != "undefined") {
+                            $('.tx' + key).empty().append(stats.messagesTX)
+                        }
+                        if (typeof (stats.commandsTX) != "undefined") {
+                            $('.tx' + key).empty().append(stats.commandsTX)
+                        }
+                        if (typeof (stats.timeoutResponse) != "undefined") {
+                            $('.timeout' + key).empty().append(stats.timeoutResponse)
+                        }
+                        if (typeof (stats.rtt) != "undefined") {
+                            $('.rtt' + key).empty().append(stats.rtt + 'ms')
+                        }
+                        if (typeof (stats.lwr) != "undefined"){
+                                if (key in eqLogic_human_name){
+                                    valueStat = eqLogic_human_name[key]
+                                } else {
+                                    valueStat = key
+                                }
+                                for (route in stats.lwr.repeaters){
+                                    if (stats.lwr.repeaters[route] in eqLogic_human_name){
+                                        valueStat += ' → ' + eqLogic_human_name[stats.lwr.repeaters[route]]
+                                    } else {
+                                        valueStat += ' → ' + stats.lwr.repeaters[route]
+                                    }
+                            	}
 								valueStat += ' → Contrôleur'
 								$('.lwr' + key).empty().append(valueStat)
 								if (typeof (stats.lwr.protocolDataRate) != "undefined"){

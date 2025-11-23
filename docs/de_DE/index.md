@@ -97,9 +97,9 @@ Mit dieser Schaltfläche auf der Seite eines Geräts können Sie die Information
 - **Zusammenfassung** : Zeigt alle Modulidentifikationsinformationen sowie Statusinformationen an.
 
 - **Anteile** : Ermöglicht das Ausführen technischer Aktionen auf einem Knoten. Jede Aktion wird kurz beschrieben.
-	>**INFORMATION**
-	>
-	>Normalerweise sollten Sie diese Funktionen nie berühren müssen, das Plugin erledigt dies selbst.
+    >**INFORMATION**
+    >
+    >Normalerweise sollten Sie diese Funktionen nie berühren müssen, das Plugin erledigt dies selbst.
 
 - **Statistiken** : Wie der Name schon sagt, ermöglicht es Ihnen, die Kommunikationsstatistiken des Moduls anzuzeigen.
 

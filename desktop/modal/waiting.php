@@ -16,7 +16,7 @@
 */
 
 if (!isConnect('admin')) {
-	throw new Exception('401 - {{Accès non autorisé}}');
+    throw new Exception('401 - {{Accès non autorisé}}');
 }
 ?>
 <div id="div_waitingAlert" style="display: none;"></div>
@@ -35,8 +35,8 @@ if (!isConnect('admin')) {
 		</thead>
 		<tbody>
 
-		</tbody>
-	</table>
+        </tbody>
+    </table>
 </div>
 <?php include_file('core', 'zwavejs', 'class.js', 'zwavejs');
 include_file('desktop', 'waiting', 'js', 'zwavejs'); ?>

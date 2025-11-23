@@ -18,158 +18,158 @@
 require_once dirname(__FILE__) . "/../../../../core/php/core.inc.php";
 
 if (!jeedom::apiAccess(init('apikey'), 'zwavejs')) {
-	echo __('Vous n\'êtes pas autorisé à effectuer cette action', __FILE__);
-	die();
+    echo __('Vous n\'êtes pas autorisé à effectuer cette action', __FILE__);
+    die();
 }
 if (isset($_GET['test'])) {
-	echo 'OK';
-	die();
+    echo 'OK';
+    die();
 }
 $results = json_decode(file_get_contents("php://input"), true);
 //log::add('zwavejs', 'debug', '>>> réponse deamon ZWaveJS ' . json_encode($results));
 
 if (!is_array($results)) {
-        die();
+    die();
 }
 
-if(isset($results['zwave'])) {
+if (isset($results['zwave'])) {
     foreach ($results as $key => $value)
-            zwavejs::handleMqttMessage(array($key => $value));
+        zwavejs::handleMqttMessage(array($key => $value));
 }
 
 $delta = time() - config::byKey('lastinclusion', 'zwavejs', 0);
 if (isset($results['devices'])) {
-	foreach ($results['devices'] as $node_id => $datas) {
-		$eqLogic = zwavejs::byLogicalId($node_id, 'zwavejs');
-		if (is_object($eqLogic)) {
-			foreach ($datas as $result) {
-				foreach ($eqLogic->getCmd('info', $result['instance'] . '.' . $result['CommandClass'] . '.' . $result['index'], null, true) as $cmd) {
-					$cmd->event($result['value']);
-				}
-				if ($result['CommandClass'] == '128') {
-					$eqLogic->batteryStatus($result['value']);
-				}
-			}
-		}
-	}
+    foreach ($results['devices'] as $node_id => $datas) {
+        $eqLogic = zwavejs::byLogicalId($node_id, 'zwavejs');
+        if (is_object($eqLogic)) {
+            foreach ($datas as $result) {
+                foreach ($eqLogic->getCmd('info', $result['instance'] . '.' . $result['CommandClass'] . '.' . $result['index'], null, true) as $cmd) {
+                    $cmd->event($result['value']);
+                }
+                if ($result['CommandClass'] == '128') {
+                    $eqLogic->batteryStatus($result['value']);
+                }
+            }
+        }
+    }
 }
 
 if (isset($results['controller'])) {
-	if (isset($results['controller']['state'])) {
-		event::add(
-			'zwave::controller.data.controllerState',
-			array('state' => $results['controller']['state']['value'])
-		);
-	}
-	if (isset($results['controller']['excluded']) && $delta > 15) {
-		if ($results['controller']['excluded']['value'] == 999) {
-			event::add('jeedom::alert', array(
-				'level' => 'warning',
-				'page' => 'zwavejs',
-				'message' => __('Un périphérique Z-Wave qui ne fait pas partie du réseau est en cours d\'exclusion.', __FILE__),
-			));
-		} else {
-			event::add('jeedom::alert', array(
-				'level' => 'warning',
-				'page' => 'zwavejs',
-				'message' => __('Un périphérique Z-Wave est en cours d\'exclusion.', __FILE__) . ' Logical ID : ' . $results['controller']['excluded']['value'],
-			));
-		}
-		sleep(2);
-		zwavejs::syncEqLogicWithzwavejs($results['controller']['excluded']['value'], 1);
-	}
-	if (isset($results['controller']['included'])) {
-		config::save('lastinclusion', time(), 'zwavejs');
-		if ($delta > 15) {
-			for ($i = 0; $i < 10; $i++) {
-				event::add('jeedom::alert', array(
-					'level' => 'warning',
-					'page' => 'zwavejs',
-					'message' => __('Début de l\'intégration du nouveau module Z-Wave détecté. Pause de', __FILE__) . ' ' . (10 - $i) . ' ' . __('pour synchronisation avec le module.', __FILE__),
-				));
-				sleep(1);
-			}
-			event::add('jeedom::alert', array(
-				'level' => 'warning',
-				'page' => 'zwavejs',
-				'message' => __('Inclusion en cours', __FILE__) . '...',
-			));
-		}
-		zwavejs::syncEqLogicWithzwavejs($results['controller']['included']['value']);
-	}
+    if (isset($results['controller']['state'])) {
+        event::add(
+            'zwave::controller.data.controllerState',
+            array('state' => $results['controller']['state']['value'])
+        );
+    }
+    if (isset($results['controller']['excluded']) && $delta > 15) {
+        if ($results['controller']['excluded']['value'] == 999) {
+            event::add('jeedom::alert', array(
+                'level' => 'warning',
+                'page' => 'zwavejs',
+                'message' => __('Un périphérique Z-Wave qui ne fait pas partie du réseau est en cours d\'exclusion.', __FILE__),
+            ));
+        } else {
+            event::add('jeedom::alert', array(
+                'level' => 'warning',
+                'page' => 'zwavejs',
+                'message' => __('Un périphérique Z-Wave est en cours d\'exclusion.', __FILE__) . ' Logical ID : ' . $results['controller']['excluded']['value'],
+            ));
+        }
+        sleep(2);
+        zwavejs::syncEqLogicWithzwavejs($results['controller']['excluded']['value'], 1);
+    }
+    if (isset($results['controller']['included'])) {
+        config::save('lastinclusion', time(), 'zwavejs');
+        if ($delta > 15) {
+            for ($i = 0; $i < 10; $i++) {
+                event::add('jeedom::alert', array(
+                    'level' => 'warning',
+                    'page' => 'zwavejs',
+                    'message' => __('Début de l\'intégration du nouveau module Z-Wave détecté. Pause de', __FILE__) . ' ' . (10 - $i) . ' ' . __('pour synchronisation avec le module.', __FILE__),
+                ));
+                sleep(1);
+            }
+            event::add('jeedom::alert', array(
+                'level' => 'warning',
+                'page' => 'zwavejs',
+                'message' => __('Inclusion en cours', __FILE__) . '...',
+            ));
+        }
+        zwavejs::syncEqLogicWithzwavejs($results['controller']['included']['value']);
+    }
 }
 
 if (isset($results['network'])) {
-	if (isset($results['network']['state']) && isset($results['network']['state']['value'])) {
-		switch ($results['network']['state']['value']) {
-			case 0: # STATE_STOPPED = 0
-				event::add('jeedom::alert', array(
-					'level' => 'danger',
-					'page' => 'zwavejs',
-					'message' => __('Le réseau Z-Wave est arrêté sur le serveur', __FILE__),
-				));
-				break;
-			case 1: # STATE_FAILED = 1
-				event::add('jeedom::alert', array(
-					'level' => 'danger',
-					'page' => 'zwavejs',
-					'message' => __('Le réseau Z-Wave est en erreur sur le serveur', __FILE__),
-				));
-				break;
-			case 3: # STATE_RESET = 3
-				event::add('jeedom::alert', array(
-					'level' => 'danger',
-					'page' => 'zwavejs',
-					'message' => __('Le réseau Z-Wave est remis à zéro sur le serveur', __FILE__),
-				));
-				break;
-			case 5: # STATE_STARTED = 5
-				event::add('jeedom::alert', array(
-					'level' => 'warning',
-					'page' => 'zwavejs',
-					'message' => __('Le réseau Z-Wave est en cours de démarrage sur le serveur', __FILE__),
-				));
-				break;
-			case 7: # STATE_AWAKED = 7
-				event::add('jeedom::alert', array(
-					'level' => 'warning',
-					'page' => 'zwavejs',
-					'message' => '',
-				));
-				break;
-			case 10: # STATE_READY = 10
-				event::add('jeedom::alert', array(
-					'level' => 'warning',
-					'page' => 'zwavejs',
-					'message' => '',
-				));
-				break;
-		}
-	}
+    if (isset($results['network']['state']) && isset($results['network']['state']['value'])) {
+        switch ($results['network']['state']['value']) {
+            case 0: # STATE_STOPPED = 0
+                event::add('jeedom::alert', array(
+                    'level' => 'danger',
+                    'page' => 'zwavejs',
+                    'message' => __('Le réseau Z-Wave est arrêté sur le serveur', __FILE__),
+                ));
+                break;
+            case 1: # STATE_FAILED = 1
+                event::add('jeedom::alert', array(
+                    'level' => 'danger',
+                    'page' => 'zwavejs',
+                    'message' => __('Le réseau Z-Wave est en erreur sur le serveur', __FILE__),
+                ));
+                break;
+            case 3: # STATE_RESET = 3
+                event::add('jeedom::alert', array(
+                    'level' => 'danger',
+                    'page' => 'zwavejs',
+                    'message' => __('Le réseau Z-Wave est remis à zéro sur le serveur', __FILE__),
+                ));
+                break;
+            case 5: # STATE_STARTED = 5
+                event::add('jeedom::alert', array(
+                    'level' => 'warning',
+                    'page' => 'zwavejs',
+                    'message' => __('Le réseau Z-Wave est en cours de démarrage sur le serveur', __FILE__),
+                ));
+                break;
+            case 7: # STATE_AWAKED = 7
+                event::add('jeedom::alert', array(
+                    'level' => 'warning',
+                    'page' => 'zwavejs',
+                    'message' => '',
+                ));
+                break;
+            case 10: # STATE_READY = 10
+                event::add('jeedom::alert', array(
+                    'level' => 'warning',
+                    'page' => 'zwavejs',
+                    'message' => '',
+                ));
+                break;
+        }
+    }
 }
 
 if (isset($results['message'])) {
-	log::add('zwavejs', 'error', $results['message']);
+    log::add('zwavejs', 'error', $results['message']);
 }
 
 if (isset($results['alert'])) {
-	switch ($results['alert']['type']) {
-		case 'node_dead':
-			$message = '';
-			$eqLogic = zwavejs::byLogicalId($results['alert']['id'], 'zwavejs');
-			if (is_object($eqLogic)) {
-				if ($eqLogic->getIsEnable()) {
-					$message = __('Le noeud', __FILE__) . ' ' . $eqLogic->getHumanName() . ' (' . $results['alert']['id'] . ') ' . __('est présumé mort', __FILE__);
-				}
-			} else {
-				$message = __('Le noeud', __FILE__) . ' ' . $results['alert']['id'] . ' ' . __('est présumé mort', __FILE__);
-			}
-			if ($message != '') {
-				log::add('zwavejs', 'error', $message, 'node_dead_' . $results['alert']['id']);
-			}
-			break;
-		case 'node_alive':
-			message::removeAll('zwavejs', 'node_dead_' . $results['alert']['id']);
-			break;
-	}
+    switch ($results['alert']['type']) {
+        case 'node_dead':
+            $message = '';
+            $eqLogic = zwavejs::byLogicalId($results['alert']['id'], 'zwavejs');
+            if (is_object($eqLogic)) {
+                if ($eqLogic->getIsEnable()) {
+                    $message = __('Le noeud', __FILE__) . ' ' . $eqLogic->getHumanName() . ' (' . $results['alert']['id'] . ') ' . __('est présumé mort', __FILE__);
+                }
+            } else {
+                $message = __('Le noeud', __FILE__) . ' ' . $results['alert']['id'] . ' ' . __('est présumé mort', __FILE__);
+            }
+            if ($message != '') {
+                log::add('zwavejs', 'error', $message, 'node_dead_' . $results['alert']['id']);
+            }
+            break;
+        case 'node_alive':
+            message::removeAll('zwavejs', 'node_dead_' . $results['alert']['id']);
+            break;
+    }
 }

@@ -97,9 +97,9 @@ Este botón presente en la página de un dispositivo le permite ver la informaci
 - **Resumen** : Muestra toda la información de identificación del módulo, así como la información de estado.
 
 - **Comparte** : Permite realizar acciones técnicas sobre un nodo. Cada acción se describe sucintamente.
-	>**INFORMACIÓN**
-	>
-	>Normalmente, nunca debería tener que tocar estas funciones, el complemento maneja esto por sí solo.
+    >**INFORMACIÓN**
+    >
+    >Normalmente, nunca debería tener que tocar estas funciones, el complemento maneja esto por sí solo.
 
 - **Estadísticas** : como su nombre lo indica, permite ver las estadísticas de comunicación del módulo.
 

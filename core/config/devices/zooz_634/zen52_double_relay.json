@@ -19,7 +19,7 @@
                 "#endpoint#": "multiKey"
             }
         },
-		"CentralScene": {
+        "CentralScene": {
             "multi": [
                 1,
                 2

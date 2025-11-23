@@ -12,35 +12,35 @@
         ]
     },
     "properties": {
-		"default": {
-			"Switch": {"replace": {"#endpoint#": 1}},
-			"Power": {"replace": {"#endpoint#": 1}},
-			"Energy": {"replace": {"#endpoint#": 1}},
-			"CentralScene": {
-				"multi": [
-					1,2
-				],
-				"replace": {
-					"#centralscene#": "multiKey"
-				}
-			},
-			"Notification|over-current": {"type":"over-current"},
-			"Notification|heat-sensor": {"type":"heat-sensor"}
-		},
-		"<3.3": {
-			"Switch": {},
-			"Power": {},
-			"Energy": {},
-			"CentralScene": {
-				"multi": [
-					1,2
-				],
-				"replace": {
-					"#centralscene#": "multiKey"
-				}
-			},
-			"Notification|over-current": {"type":"over-current"},
-			"Notification|heat-sensor": {"type":"heat-sensor"}
-		}
+        "default": {
+            "Switch": {"replace": {"#endpoint#": 1}},
+            "Power": {"replace": {"#endpoint#": 1}},
+            "Energy": {"replace": {"#endpoint#": 1}},
+            "CentralScene": {
+                "multi": [
+                    1,2
+                ],
+                "replace": {
+                    "#centralscene#": "multiKey"
+                }
+            },
+            "Notification|over-current": {"type":"over-current"},
+            "Notification|heat-sensor": {"type":"heat-sensor"}
+        },
+        "<3.3": {
+            "Switch": {},
+            "Power": {},
+            "Energy": {},
+            "CentralScene": {
+                "multi": [
+                    1,2
+                ],
+                "replace": {
+                    "#centralscene#": "multiKey"
+                }
+            },
+            "Notification|over-current": {"type":"over-current"},
+            "Notification|heat-sensor": {"type":"heat-sensor"}
+        }
     }
 }
