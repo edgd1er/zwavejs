@@ -15,17 +15,17 @@
 */
 var selectGroup = ''
 $("body").off("click", ".removeAssociation").on("click", ".removeAssociation", function(e) {
-	jeedom.zwavejs.node.removeAssociation({
-		nodeId: $(this).data('nodeid'),
-		groupId: $(this).data('groupid'),
-		sourceEndpoint: $(this).data('sourceendpoint'),
-		targetEndpoint: $(this).data('targetendpoint'),
-		assoNodeId: $(this).data('assonodeid'),
-		error: function(error) {
-			$('#div_nodeGroupsZwaveJsAlert').showAlert({ message: error.message, level: 'danger' })
-		},
-		success: function() {
-			$('#div_nodeGroupsZwaveJsAlert').showAlert({ message: '{{Action réalisée avec succès}}', level: 'success' })
+    jeedom.zwavejs.node.removeAssociation({
+        nodeId: $(this).data('nodeid'),
+        groupId: $(this).data('groupid'),
+        sourceEndpoint: $(this).data('sourceendpoint'),
+        targetEndpoint: $(this).data('targetendpoint'),
+        assoNodeId: $(this).data('assonodeid'),
+        error: function(error) {
+            $('#div_nodeGroupsZwaveJsAlert').showAlert({ message: error.message, level: 'danger' })
+        },
+        success: function() {
+            $('#div_nodeGroupsZwaveJsAlert').showAlert({ message: '{{Action réalisée avec succès}}', level: 'success' })
 		}
 	})
 })

@@ -19,7 +19,7 @@ var LAST_SEND_TOPIC = {}
 
 const args = Jeedom.getArgs()
 if (typeof args.loglevel == 'undefined') {
-  args.loglevel = 'debug'
+    args.loglevel = 'debug'
 }
 Jeedom.log.setLevel(args.loglevel)
 
@@ -49,110 +49,101 @@ if (args.ca) {
 }
 */
 var client = mqtt.connect(args.mqtt_server, {
-    clientId: "mqtt-jeedom_"+Math.random().toString(16).substring(0, 8),
-    rejectUnauthorized: false,
-//    key: key,
+    clientId: "mqtt-jeedom_" + Math.random().toString(16).substring(0, 8), rejectUnauthorized: false, //    key: key,
 //    cert: crt,
-    username: args.username,
-    password: args.password
+    username: args.username, password: args.password
 })
 
 Jeedom.log.info('Connect to mqtt server')
 
-client.on('error', function(error) {
-  Jeedom.log.error('Error on connection to mqtt server : ' + error)
-  process.exit()
+client.on('error', function (error) {
+    Jeedom.log.error('Error on connection to mqtt server : ' + error)
+    process.exit()
 })
 
-client.on('reconnect', function() {
-  Jeedom.log.error('Reconnection to mqtt server')
+client.on('reconnect', function () {
+    Jeedom.log.error('Reconnection to mqtt server')
 })
 
-client.on('connect', function() {
-  Jeedom.log.info('Connection to mqtt server successfull')
-/*
-  client.subscribe('$SYS/#', function(err) {
-    if (err) {
-      Jeedom.log.error('Error on Subscription : ' + err)
-      process.exit()
+client.on('connect', function () {
+    Jeedom.log.info('Connection to mqtt server successfull')
+    /*
+      client.subscribe('$SYS/#', function(err) {
+        if (err) {
+          Jeedom.log.error('Error on Subscription : ' + err)
+          process.exit()
+        }
+        Jeedom.log.info('Subscription to SYS topic')
+      })
+    */
+})
+
+client.on('message', function (topic, message) {
+    Jeedom.log.debug('Received message on topic : ' + topic + ' => ' + message.toString())
+    try {
+        json = JSON.parse(message.toString())
+        Jeedom.com.add_changes(topic.replace(/\//g, '::'), json)
+    } catch (e) {
+        Jeedom.com.add_changes(topic.replace(/\//g, '::'), message.toString())
     }
-    Jeedom.log.info('Subscription to SYS topic')
-  })
-*/
-})
-
-client.on('message', function(topic, message) {
-  Jeedom.log.debug('Received message on topic : ' + topic + ' => ' + message.toString())
-  try {
-    json = JSON.parse (message.toString())
-    Jeedom.com.add_changes(topic.replace(/\//g, '::'), json)
-  } catch (e) {
-    Jeedom.com.add_changes(topic.replace(/\//g, '::'), message.toString())
-  }
 })
 
 Jeedom.http.config(args.socketport, args.apikey)
 
-Jeedom.http.app.post('/addTopic', function(req, res) {
-  try {
-    if (!Jeedom.http.checkApikey(req))
-	throw new Exception ('Invalid apikey')
-    if(req.body.topic) {
-	Jeedom.log.info('Adding topic: ' + req.body.topic)
-	client.subscribe(req.body.topic + '/#', function(err) {
-	if (err)
-		throw new Exception (err)
-	})
+Jeedom.http.app.post('/addTopic', function (req, res) {
+    try {
+        if (!Jeedom.http.checkApikey(req)) throw new Exception('Invalid apikey')
+        if (req.body.topic) {
+            Jeedom.log.info('Adding topic: ' + req.body.topic)
+            client.subscribe(req.body.topic + '/#', function (err) {
+                if (err) throw new Exception(err)
+            })
+        }
+        res.setHeader('Content-Type', 'application/json')
+        res.send({state: "ok"})
+        return
+    } catch (error) {
+        Jeedom.log.debug('Error on topic addition : ' + error)
+        res.setHeader('Content-Type', 'application/json')
+        res.send({state: "nok", result: JSON.stringify(error)})
     }
-    res.setHeader('Content-Type', 'application/json')
-    res.send({ state: "ok" })
-    return
-  } catch (error) {
-    Jeedom.log.debug('Error on topic addition : ' + error)
-    res.setHeader('Content-Type', 'application/json')
-    res.send({ state: "nok", result: JSON.stringify(error) })
-  }
 })
 
-Jeedom.http.app.post('/removeTopic', function(req, res) {
-  try {
-    if (!Jeedom.http.checkApikey(req))
-        throw new Exception ('Invalid apikey')
-    if(req.body.topic) {
-        Jeedom.log.info('Removing topic: ' + req.body.topic)
-        client.unsubscribe(req.body.topic + '/#', function(err) {
-        if (err)
-                throw new Exception (err)
-        })
+Jeedom.http.app.post('/removeTopic', function (req, res) {
+    try {
+        if (!Jeedom.http.checkApikey(req)) throw new Exception('Invalid apikey')
+        if (req.body.topic) {
+            Jeedom.log.info('Removing topic: ' + req.body.topic)
+            client.unsubscribe(req.body.topic + '/#', function (err) {
+                if (err) throw new Exception(err)
+            })
+        }
+        res.setHeader('Content-Type', 'application/json')
+        res.send({state: "ok"})
+        return
+    } catch (error) {
+        Jeedom.log.debug('Error on topic removal : ' + error)
+        res.setHeader('Content-Type', 'application/json')
+        res.send({state: "nok", result: JSON.stringify(error)})
     }
-    res.setHeader('Content-Type', 'application/json')
-    res.send({ state: "ok" })
-    return
-  } catch (error) {
-    Jeedom.log.debug('Error on topic removal : ' + error)
-    res.setHeader('Content-Type', 'application/json')
-    res.send({ state: "nok", result: JSON.stringify(error) })
-  }
 })
 
-Jeedom.http.app.post('/publish', function(req, res) {
-  try {
-    if (!Jeedom.http.checkApikey(req))
-	throw new Exception ('Invalid apikey')
+Jeedom.http.app.post('/publish', function (req, res) {
+    try {
+        if (!Jeedom.http.checkApikey(req)) throw new Exception('Invalid apikey')
 
-    if(req.body.topic) {
-	Jeedom.log.info('Publish message on topic: ' + req.body.topic + ' => ' + String(req.body.message))
-	client.publish(req.body.topic, String(req.body.message), function(err) {
-	if (err)
-		throw new Exception (err)
-	})
+        if (req.body.topic) {
+            Jeedom.log.info('Publish message on topic: ' + req.body.topic + ' => ' + String(req.body.message))
+            client.publish(req.body.topic, String(req.body.message), function (err) {
+                if (err) throw new Exception(err)
+            })
+        }
+        res.setHeader('Content-Type', 'application/json')
+        res.send({state: "ok"})
+        return
+    } catch (error) {
+        Jeedom.log.debug('Error on topic publication : ' + error)
+        res.setHeader('Content-Type', 'application/json')
+        res.send({state: "nok", result: JSON.stringify(error)})
     }
-    res.setHeader('Content-Type', 'application/json')
-    res.send({ state: "ok" })
-    return
-  } catch (error) {
-    Jeedom.log.debug('Error on topic publication : ' + error)
-    res.setHeader('Content-Type', 'application/json')
-    res.send({ state: "nok", result: JSON.stringify(error) })
-  }
 })

@@ -21,8 +21,8 @@ global $SIG;
 $SIG = false;
 
 function sig_handler($signo) {
-	global $SIG;
-	$SIG = true;
+    global $SIG;
+    $SIG = true;
 }
 
 pcntl_signal(SIGTERM, "sig_handler");
@@ -31,11 +31,11 @@ pcntl_signal(SIGHUP, "sig_handler");
 require_once dirname(__FILE__) . "/../../../../core/php/core.inc.php";
 log::add('zwavejs', 'debug', 'Refresher');
 if (isset($argv)) {
-	foreach ($argv as $arg) {
-		$argList = explode('=', $arg);
-		if (isset($argList[0]) && isset($argList[1])) {
-			$_GET[$argList[0]] = $argList[1];
-		}
+    foreach ($argv as $arg) {
+        $argList = explode('=', $arg);
+        if (isset($argList[0]) && isset($argList[1])) {
+            $_GET[$argList[0]] = $argList[1];
+    	}
 	}
 }
 if (init('id') == '') {

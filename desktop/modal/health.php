@@ -16,36 +16,36 @@
 */
 
 if (!isConnect('admin')) {
-	throw new Exception('401 - {{Accès non autorisé}}');
+    throw new Exception('401 - {{Accès non autorisé}}');
 }
 sendVarToJs('battery_warning', config::byKey('battery::warning'));
 sendVarToJs('battery_danger', config::byKey('battery::danger'));
 ?>
 <div id="div_networkHealthAlert" style="display: none;"></div>
 <div class="modalHealthValues">
-	<table class="table table-condensed tableHealth" id="table_healthNetwork">
-		<thead>
-			<tr>
-				<th>{{Id}}</th>
-				<th>{{Equipement}}</th>
-				<th>{{Endpoints}}</th>
-				<th>{{Sécurité}}</th>
-				<th>{{Flirs}}</th>
-				<th>{{Z-Wave+}}</th>
-				<th>{{Routing}}</th>
-				<th>{{Polling}}</th>
-				<th>{{Refresh}}</th>
-				<th>{{Initié}}</th>
-				<th>{{Statut}}</th>
-				<th>{{Interview}}</th>
-				<th>{{Dernière activité}}</th>
-				<th>{{Ping}}</th>
-			</tr>
-		</thead>
-		<tbody>
+    <table class="table table-condensed tableHealth" id="table_healthNetwork">
+        <thead>
+            <tr>
+                <th>{{Id}}</th>
+                <th>{{Equipement}}</th>
+                <th>{{Endpoints}}</th>
+                <th>{{Sécurité}}</th>
+                <th>{{Flirs}}</th>
+                <th>{{Z-Wave+}}</th>
+                <th>{{Routing}}</th>
+                <th>{{Polling}}</th>
+                <th>{{Refresh}}</th>
+                <th>{{Initié}}</th>
+                <th>{{Statut}}</th>
+                <th>{{Interview}}</th>
+                <th>{{Dernière activité}}</th>
+                <th>{{Ping}}</th>
+            </tr>
+        </thead>
+        <tbody>
 
-		</tbody>
-	</table>
+        </tbody>
+    </table>
 </div>
 <?php include_file('core', 'zwavejs', 'class.js', 'zwavejs');
 include_file('desktop', 'health', 'js', 'zwavejs'); ?>

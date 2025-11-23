@@ -20,23 +20,23 @@
         ]
     },
     "properties": {
-		"default": {
-			"Motion": {
-				"type": "binary-any"
-			},
-			"Temperature": {},
-			"Luminance": {},
-			"Tamper": {
-				"type": "alarm"
-			},
-			"Battery": {}
-		},
-		">=3.3": {
+        "default": {
+            "Motion": {
+                "type": "binary-any"
+            },
+            "Temperature": {},
+            "Luminance": {},
+            "Tamper": {
+                "type": "alarm"
+            },
+            "Battery": {}
+        },
+        ">=3.3": {
             "Motion": {},
-			"Temperature": {},
-			"Luminance": {},
-			"Tamper": {},
-			"Battery": {}
+            "Temperature": {},
+            "Luminance": {},
+            "Tamper": {},
+            "Battery": {}
         }
     }
 }
