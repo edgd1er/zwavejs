@@ -7,7 +7,7 @@
         ]
     },
     "properties": {
-		"Shutter":{"type":"covering"},
+        "Shutter":{"type":"covering"},
         "CentralScene": {
             "multi": [
                 1,2

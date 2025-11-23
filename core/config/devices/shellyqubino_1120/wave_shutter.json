@@ -9,7 +9,7 @@
         ]
     },
     "properties": {
-		"Shutter": {"type":"downup","replace": {"#endpoint#": 1}},
+        "Shutter": {"type":"downup","replace": {"#endpoint#": 1}},
         "Power": {"replace": {"#endpoint#": 1}},
         "Energy": {"replace": {"#endpoint#": 1}},
         "Notification|Heat":{"type":"heat-sensor","replace": {"#endpoint#": 1}},

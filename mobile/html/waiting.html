@@ -1,25 +1,25 @@
 <div id="div_waitingAlert" style="display: none;"></div>
 <div class="alert alert-warning noparam" style="display: none;">{{Aucun paramètre en attente}}</div>
 <div class="modalWaiting">
-	<table class="table table-condensed tableWaiting" id="table_waiting">
-		<thead>
-			<tr>
-				<th>{{Equipement}}</th>
-				<th>{{Paramètres}}</th>
-				<th>{{Valeurs}}</th>
-				<th>{{Date}}</th>
-				<th>{{}}</th>
-			</tr>
-		</thead>
-		<tbody>
+    <table class="table table-condensed tableWaiting" id="table_waiting">
+        <thead>
+            <tr>
+                <th>{{Equipement}}</th>
+                <th>{{Paramètres}}</th>
+                <th>{{Valeurs}}</th>
+                <th>{{Date}}</th>
+                <th>{{}}</th>
+            </tr>
+        </thead>
+        <tbody>
 
-		</tbody>
-	</table>
+        </tbody>
+    </table>
 </div>
 
 <script src="core/php/getJS.php?file=plugins/zwavejs/core/js/zwavejs.class.js"></script>
 <script>
-	$('#table_waiting').off().on('click', '.removeHist', function() {
+    $('#table_waiting').off().on('click', '.removeHist', function() {
   jeedom.zwavejs.waiting.remove({
     logical: $(this).attr('data-id'),
     property: $(this).attr('data-property'),

@@ -16,27 +16,27 @@
 */
 
 if (!isConnect('admin')) {
-	throw new Exception('401 - {{Accès non autorisé}}');
+    throw new Exception('401 - {{Accès non autorisé}}');
 }
 ?>
 <div id="div_waitingAlert" style="display: none;"></div>
 <div class="alert alert-warning noparam" style="display: none;">{{Aucun paramètre en attente}}</div>
 <div class="modalWaiting">
-	<table class="table table-condensed tableWaiting" id="table_waiting">
-		<thead>
-			<tr>
-				<th>{{Id}}</th>
-				<th style="min-width:330px;">{{Equipement}}</th>
-				<th>{{Paramètres}}</th>
-				<th>{{Valeurs}}</th>
-				<th>{{Date}}</th>
-				<th>{{}}</th>
-			</tr>
-		</thead>
-		<tbody>
+    <table class="table table-condensed tableWaiting" id="table_waiting">
+        <thead>
+            <tr>
+                <th>{{Id}}</th>
+                <th style="min-width:330px;">{{Equipement}}</th>
+                <th>{{Paramètres}}</th>
+                <th>{{Valeurs}}</th>
+                <th>{{Date}}</th>
+                <th>{{}}</th>
+            </tr>
+        </thead>
+        <tbody>
 
-		</tbody>
-	</table>
+        </tbody>
+    </table>
 </div>
 <?php include_file('core', 'zwavejs', 'class.js', 'zwavejs');
 include_file('desktop', 'waiting', 'js', 'zwavejs'); ?>

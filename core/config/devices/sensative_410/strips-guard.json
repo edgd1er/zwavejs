@@ -14,10 +14,10 @@
         ]
     },
     "properties": {
-		"Opening":{},
-		"Notification|sensor":{"type":"sensor","name":"Sabotage"},
-		"Notification|magnetic":{"type":"magnetic","isVisible":0},
-		"Notification|software":{"type":"software","isVisible":0},
-		"Battery":{}
-	}
+        "Opening":{},
+        "Notification|sensor":{"type":"sensor","name":"Sabotage"},
+        "Notification|magnetic":{"type":"magnetic","isVisible":0},
+        "Notification|software":{"type":"software","isVisible":0},
+        "Battery":{}
+    }
 }

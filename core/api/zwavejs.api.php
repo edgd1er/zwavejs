@@ -18,25 +18,25 @@ header('Content-Type: application/json');
 require_once dirname(__FILE__) . "/../../../../core/php/core.inc.php";
 global $jsonrpc;
 if (!is_object($jsonrpc)) {
-	throw new Exception(__('JSONRPC object not defined', __FILE__), -32699);
+    throw new Exception(__('JSONRPC object not defined', __FILE__), -32699);
 }
 $params = $jsonrpc->getParams();
 if ($jsonrpc->getMethod() == 'addNodeToNetwork') {
-	if (!isset($params['secure'])) {
-		$params['secure'] = 0;
-	}
-	zwavejs::callzwavejs('controller?type=addNode&security=' . $params['secure']);
-	$jsonrpc->makeSuccess();
+    if (!isset($params['secure'])) {
+        $params['secure'] = 0;
+    }
+    zwavejs::callzwavejs('controller?type=addNode&security=' . $params['secure']);
+    $jsonrpc->makeSuccess();
 }
 
 if ($jsonrpc->getMethod() == 'removeNodeFromNetwork') {
-	zwavejs::callzwavejs('controller?type=removeNode');
-	$jsonrpc->makeSuccess();
+    zwavejs::callzwavejs('controller?type=removeNode');
+    $jsonrpc->makeSuccess();
 }
 
 if ($jsonrpc->getMethod() == 'cancel') {
-	zwavejs::callzwavejs('controller?type=action&action=controller?type=cancelCommand');
-	$jsonrpc->makeSuccess();
+    zwavejs::callzwavejs('controller?type=action&action=controller?type=cancelCommand');
+    $jsonrpc->makeSuccess();
 }
 
 throw new Exception(__('Aucune demande', __FILE__));

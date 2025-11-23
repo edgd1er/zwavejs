@@ -97,9 +97,9 @@ This button present on the page of a device allows you to view the information o
 - **Summary** : Displays all module identification information as well as status information.
 
 - **Shares** : Allows performing technical actions on a node. Each action is described succinctly.
-	>**INFORMATION**
-	>
-	>You should normally never have to touch these functions, the plugin handles this on its own.
+    >**INFORMATION**
+    >
+    >You should normally never have to touch these functions, the plugin handles this on its own.
 
 - **Statistics** : as its name suggests, it allows you to see the communication statistics of the module.
 

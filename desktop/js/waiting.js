@@ -74,7 +74,7 @@ function getWaiting() {
 }
 
 $('#md_modal3').bind('dialogclose', function(event, ui) {
-	clearTimeout(get_waiting)
+    clearTimeout(get_waiting)
 })
 
 
