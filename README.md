@@ -153,6 +153,9 @@ Vérifiez la communication en cliquant sur le bouton `Tester`
 * Si ca ne suffit pas comparez les 2 fichiers de configuration `zwavejs/data/store/settings.json` et `/root/store/zwavejs/config.json`
 
 ## Changelog
+
+* v3.1 [lxrootard](https://github.com/lxrootard)
+<br> - dependancy fix for Jeedom 4.5 + bugfix
 * v3 [lxrootard](https://github.com/lxrootard)
 <br> - Suppression de la dépendance au plugin mqtt2
 <br> - Ajout d'un onglet pour les commandes ZWaveJS et filtres sur les commandes

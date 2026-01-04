@@ -48,7 +48,7 @@ class zwavejs extends eqLogic {
 			$zwSettings['host'] = 'localhost';
 			$zwSettings['port'] = '8091';
 			config::save('zwavejs', json_encode($zwSettings), __CLASS__);
-			cache::set('blescanner::version', 'N/A');
+			cache::set('zwavejs::version', 'N/A');
 		}
 
 		$mqttSettings = config::byKey('mqtt', __CLASS__,array());
