@@ -659,26 +659,14 @@ function addCmdToTable(_cmd) {
         _cmd.configuration = {}
 
     const cmdLid = _cmd.logicalId;
-    const eqId = _cmd.eqLogic_id;
-    if (!isset(eqId))
-	return;
-
-    jeedom.eqLogic.byId({ id: eqId,
-	success: function (eqLogic) {
-	   if (cmdLid.toLowerCase().startsWith('0-0-')) {
-		$('#zwavejs_table tbody').append(buildCmd(_cmd))
-		var tr = $('#zwavejs_table tbody tr').last()
-	   } else {
-		$('#commands_table tbody').append(buildCmd(_cmd))
-		var tr = $('#commands_table tbody tr').last()
-	   }
-	   displayCmd(_cmd,tr);
-	},
-	error: function(error) {
-		// alert ('error in addCmdToTable: ' + error.message + ' eqId:' +eqId +' cmdId: ' + _cmd.id);
-		$.fn.showAlert({ message: error.message, level: 'danger' })
-	}
-    });
+    if (cmdLid.toLowerCase().startsWith('0-0-')) {
+	$('#zwavejs_table tbody').append(buildCmd(_cmd))
+	var tr = $('#zwavejs_table tbody tr').last()
+    } else {
+	$('#commands_table tbody').append(buildCmd(_cmd))
+	var tr = $('#commands_table tbody tr').last()
+    }
+    displayCmd(_cmd,tr);
 }
 
 function saveEqLogic(_eqLogic) {
