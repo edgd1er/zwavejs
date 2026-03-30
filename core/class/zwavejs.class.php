@@ -476,19 +476,18 @@ class zwavejs extends eqLogic {
         return $data;
     }
 
+    public static function additionnalDependancyCheck() {
+        $return = array();
+        if (config::byKey('zwavejs::mode', __CLASS__) === 'local') {
+            if (!file_exists(__DIR__ . '/../../resources/zwave-js-ui/node_modules')) {
+                $return['state'] = 'nok';
+            }
+        }
+        return $return;
+    }
+
     public static function dependancy_info() {
         log::add(__CLASS__, 'debug', '>>> Dependancy info');
-
-	public static function additionnalDependancyCheck() {
-		$return = array();
-		if (config::byKey('zwavejs::mode', __CLASS__) === 'local') {
-			if (!file_exists(__DIR__ . '/../../resources/zwave-js-ui/node_modules')) {
-				$return['state'] = 'nok';
-			}
-		}
-		return $return;
-	}
-
 		$return['progress_file'] = jeedom::getTmpFolder(__CLASS__) . '/dependance';
 		$return['state'] = 'ok';
 		$mode = config::byKey('zwavejs_mode', __CLASS__, '');
@@ -550,7 +549,7 @@ class zwavejs extends eqLogic {
         if (($mode == 'remote') && (config::byKey('remoteDeamonStatus', __CLASS__,'') == "running")){
             $status=true;
         }
-        log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] result=false, mode=' . $mode.', remoteDeamonStatus='.config::byKey('remoteDeamonStatus', __CLASS__,''));
+        log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] result='.$status.', mode=' . $mode.', remoteDeamonStatus='.config::byKey('remoteDeamonStatus', __CLASS__,''));
         return $status;
     }
 
@@ -569,7 +568,7 @@ class zwavejs extends eqLogic {
             log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] settings MQTT: ' . json_encode($mqttSettings));
             $mqttd = self::getDeamon();
             $mqttd->start ($mqttSettings);
-            sleep(1);
+            sleep(2);
             if (! ($mqttd->isRunning())) {
                 log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] Démon MQTT non démarré ou mauvais paramétrage, vérifier les logs');
                 throw new Exception('[' . __FUNCTION__ . '] Démon MQTT non démarré ou mauvais paramétrage, vérifier les logs');
@@ -2455,22 +2454,17 @@ class zwavejs extends eqLogic {
         return false;
     }
 
-	public function getImage() {
-		$default = parent::getImage();
-		$plugin = plugin::byId(__CLASS__);
-		if ($default != $plugin->getPathImgIcon()) {
-			return $default; // this is a custom image uploaded by the user, we keep it
-		}
+    public function getImgFilePath() {
+        $path = str_replace('.json', '', $this->getConfFilePath());
+        if (is_file(dirname(__FILE__) . '/../config/devices/' . $path . '.png')) {
+            return  $path . '.png';
+        } else if (is_file(dirname(__FILE__) . '/../config/devices/' . $path . '.jpg')) {
+            return  $path . '.jpg';
+        }
+        return false;
+    }
 
-		$file = 'plugins/zwavejs/core/config/devices/' . $this->getImgFilePath();
-		if (!is_file(__DIR__ . '/../../../../' . $file)) {
-			return $default;
-		}
-		return $file;
-	}
-
-    public function getImage()
-    {
+    public function getImage() {
         $file = 'plugins/zwavejs/core/config/devices/' . $this->getImgFilePath();
         if (!is_file(__DIR__ . '/../../../../' . $file)) {
             return 'plugins/zwavejs/plugin_info/zwavejs_icon.png';
