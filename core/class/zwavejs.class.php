@@ -529,7 +529,7 @@ class zwavejs extends eqLogic {
             log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] settings MQTT: ' . json_encode($mqttSettings));
             $mqttd = self::getDeamon();
             $mqttd->start ($mqttSettings);
-            sleep(1);
+            sleep(2);
             if (! ($mqttd->isRunning())) {
                 log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] Démon MQTT non démarré ou mauvais paramétrage, vérifier les logs');
                 throw new Exception('[' . __FUNCTION__ . '] Démon MQTT non démarré ou mauvais paramétrage, vérifier les logs');
