@@ -57,6 +57,7 @@ class MQTTClient {
     cache::set($this->_class .'::settings', $mqttSettings);
 
     log::add($this->_class, 'debug', 'starting ' . $this->_class.'d with settings: ' . json_encode($mqttSettings));
+    log::add($this->_class, 'info', 'starting ' . $this->_class.'d.');
     $cbclass = '/core/php/' . $mqttSettings['cbclass'] . '.php';
     $cbfile = realpath(dirname(__FILE__) .'/../..' . $cbclass);
     if (file_exists($cbfile))
@@ -76,7 +77,8 @@ class MQTTClient {
     $cmd .= ' --apikey ' . jeedom::getApiKey($this->_class);
     $cmd .= ' --cycle 1';
     $cmd .= ' --pid ' . jeedom::getTmpFolder($this->_class) . '/mqttDeamon.pid';
-    log::add($this->_class, 'info',$this->_class . 'd started with command: ' . $cmd);
+    log::add($this->_class, 'debug',$this->_class . 'd started with command: ' . $cmd);
+    log::add($this->_class, 'info',$this->_class . 'd started');
     exec($cmd . ' >> ' . log::getPathToLog($this->_class . 'd') . ' 2>&1 &');
     #wait for pid file to be written
     sleep(2);
