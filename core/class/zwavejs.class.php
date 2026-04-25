@@ -566,12 +566,16 @@ class zwavejs extends eqLogic {
             $mqttSettings['cbclass'] = 'jeeZwave';
             config::save('mqtt', json_encode($mqttSettings), __CLASS__);
             log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] settings MQTT: ' . json_encode($mqttSettings));
+            log::add(__CLASS__, 'info', '[' . __FUNCTION__ . '] starting MQTT daemon.');
             $mqttd = self::getDeamon();
             $mqttd->start ($mqttSettings);
             sleep(2);
             if (! ($mqttd->isRunning())) {
                 log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] Démon MQTT non démarré ou mauvais paramétrage, vérifier les logs');
                 throw new Exception('[' . __FUNCTION__ . '] Démon MQTT non démarré ou mauvais paramétrage, vérifier les logs');
+            }
+            else {
+                log::add(__CLASS__,'info', '[' . __FUNCTION__ . '] Démon MQTT démarré');
             }
             $mqttd->send ('addTopic',$mqttSettings['prefix']);
             $zwSettings = config::byKey('zwavejs', __CLASS__, array());
@@ -594,8 +598,11 @@ class zwavejs extends eqLogic {
                 log::add(__CLASS__, 'info', __('Démarrage du démon ZwaveJS', __FILE__) . ' : ' . $cmd);
                 exec(system::getCmdSudo() . $cmd . ' >> ' . log::getPathToLog('zwavejsd') . ' 2>&1 &');
             } else {
-                if (! self::checkZWaveJSSvc())
+                if (! self::checkZWaveJSSvc()){
+                    config::save('remoteDeamonStatus', 'stopped' ,__CLASS__);
                     throw new Exception(__('Service ZWaveJS non démarré ou mal paramétré, vérifiez les logs',__FILE__));
+                }
+
                 self::getInfo();
                 config::save('remoteDeamonStatus', 'running' ,__CLASS__);
             }
