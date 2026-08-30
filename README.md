@@ -154,6 +154,8 @@ Vérifiez la communication en cliquant sur le bouton `Tester`
 
 ## Changelog
 
+* v3.3 [lxrootard](https://github.com/lxrootard)
+<br> - modularization
 * v3.2 [lxrootard](https://github.com/lxrootard)
 <br> - documentation update + code optimization
 * v3.1 [lxrootard](https://github.com/lxrootard)

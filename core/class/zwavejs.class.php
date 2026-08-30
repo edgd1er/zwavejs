@@ -19,8 +19,7 @@
 /* * ***************************Includes********************************* */
 
 require_once __DIR__  . '/../../../../core/php/core.inc.php';
-if (!class_exists('jeedomtools\MQTTClient'))
-	require_once __DIR__  . '/MQTTClient.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 use jeedomtools\MQTTClient as zw_MQTTClient;
 
@@ -523,7 +522,7 @@ class zwavejs extends eqLogic {
 		   log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] settings MQTT: ' . json_encode($mqttSettings));
 		   $mqttd = self::getDeamon();
 		   $mqttd->start ($mqttSettings);
-		   sleep(2);
+		   sleep(3);
 		   if (! ($mqttd->isRunning()))
 			throw new Exception('Démon MQTT non démarré ou mauvais paramétrage, vérifier les logs');
 		   $mqttd->send ('addTopic',$mqttSettings['prefix']);
