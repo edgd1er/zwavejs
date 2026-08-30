@@ -2426,10 +2426,26 @@ class zwavejs extends eqLogic {
 		return false;
 	}
 
+/*
 	public function getImage() {
 		$file = 'plugins/zwavejs/core/config/devices/' . $this->getImgFilePath();
 		if (!is_file(__DIR__ . '/../../../../' . $file)) {
 			return 'plugins/zwavejs/plugin_info/zwavejs_icon.png';
+		}
+		return $file;
+	}
+*/
+
+	public function getImage() {
+		$default = parent::getImage();
+		$plugin = plugin::byId(__CLASS__);
+		if ($default != $plugin->getPathImgIcon()) {
+			return $default; // this is a custom image uploaded by the user, we keep it
+		}
+
+		$file = 'plugins/zwavejs/core/config/devices/' . $this->getImgFilePath();
+		if (!is_file(__DIR__ . '/../../../../' . $file)) {
+			return $default;
 		}
 		return $file;
 	}

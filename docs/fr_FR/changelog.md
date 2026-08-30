@@ -4,16 +4,112 @@
 >
 >S'il n'y a pas d'information sur la mise à jour, c'est que celle-ci concerne uniquement de la mise à jour de documentation, de traduction ou de texte.
 
+# 17/07/2026
+
+- Passage à la version *11.19.0* de ZwaveJsUI (stable)
+- Passage à la version *11.21.1* de ZwaveJsUI (beta)
+
+# 01/06/2026
+
+- Passage à la version *11.15.1* de ZwaveJsUI (stable)
+- Passage à la version *11.19.0* de ZwaveJsUI (beta)
+
+# 31/03/2026
+
+- Passage à la version *11.12.0* de ZwaveJsUI (stable)
+- Passage à la version *11.15.1* de ZwaveJsUI (beta)
+
+# 16/03/2026
+
+- Configuration automatique du plugin sur les boxes officielles *(Jeedom 4.5.3 mini)*
+
+# 09/03/2026
+
+- Ajout de la configuration *Shelly Qubino Wave Door/Window (QNDW-002C)* (propriétés : Opening, Luminance, Direction, Battery)
+- Ajout de la configuration *Shelly Qubino Wave Plug (QNPL-0A112)* (propriétés : Switch, Power, Energy)
+- Ajout de la configuration *Zooz ZEN58 Low Voltage XS Relay* (propriétés : Switch, Power, Energy, Voltage, Current)
+- Correction de la configuration *Aeotec ZWA001* (valeur par défaut du paramètre de température de couleur)
+
+# 02/03/2026
+
+- Correction mineure sur la page *Statistiques*
+
+# 24/02/2026
+
+- Support des images d’équipement personnalisées *(Jeedom 4.5 mini)*
+- Ajout des traductions manquantes pour les messages arrivant dans le centre de notifications
+
+# 21/02/2026
+
+- Passage à la version *11.12.0* de ZwaveJsUI (beta) *(corrige les alertes "Dead" intempestives)*
+
+# 11/02/2026
+
+- Passage à la version *11.6.1* de ZwaveJsUI (stable)
+- Passage à la version *11.11.0* de ZwaveJsUI (beta)
+- Ajout d'une option dans la page de configuration du plugin pour configurer un port de contrôleur distant via socket tcp (utile pour les controleurs comme le SLZB-MR1U)
+
+# 04/11/2025
+
+- Passage à la version *11.2.1* de ZwaveJsUI (stable)
+- Passage à la version *11.6.1* de ZwaveJsUI (beta)
+
+# 16/09/2025
+
+- Passage à la version *10.5.1* de ZwaveJsUI (stable)
+- Passage à la version *11.2.1* de ZwaveJsUI (beta)
+
+# 24/06/2025
+
+- Correction d'un bug qui se produisait sous PHP8 lors de la création des commandes manquantes.
+
+# 10/06/2025
+
+- Mise à jour de la configuration *Mco Home MH-S412 double*
+
+# 05/06/2025
+
+**Améliorations**
+
+- Ajout de la procédure d'intégration
+
+**Ajouts de Configurations**
+
+- Ajout de la configuration *Shelly Qubino WAVE_PM_MINI - WAVE PM Mini - Relay* (propriétés : Power, Energy, Notification Over-Current, Notification Over-Voltage, Notification Heat-Sensor, Notification Alarm-Level, Notification Mains, Indicator)
+- Ajout de la configuration *Zooz ZAC38 - ZAC38 - Range extender* (propriétés : Switch, Notification Alarm-Level, Notification Mains, Indicator, Battery)
+
+# 04/06/2025
+
+**Ajouts de Configurations**
+
+- Ajout de la configuration *Mco Home MH-S411 Simple* (propriétés : Switch, Scene, Central Scene)
+- Ajout de la configuration *Remotec ZXT-800* (propriétés : Air temperature, Thermostatmode, Thermostatoperatingstate, Thermostatsetpoint, Thermostatfanmode, Indicator)
+- Ajout de la configuration *Shelly Qubino Wave 1PM Mini QMSW-0A1P8* (propriétés : Switch, Power, Energy, Notification Mains, Notification Over-Current, Notification Heat-Sensor, Notification Alarm-Level)
+- Ajout de la configuration *Shelly Qubino Wave 1 Mini QMSW-0A1X8* (propriétés : Switch, Notification Mains, Notification Heat-Sensor, Notification Alarm-Level)
+- Ajout de la configuration *Heatit Thermostat Z-TEMP3* (propriétés : Air temperature, Humidity, Thermostatmode, Thermostatoperatingstate, Thermostatsetpoint, Battery, Indicator)
+- Ajout de la configuration *Zooz ZEN15 - Power Switch* (propriétés : Switch, Notification Alarm-Level, Notification Power-Status, Scene, Indicator, Voltage, Power, Energy, Current)
+- Ajout de la configuration *Zooz ZEN54_LR - 0-10V Dimmer* (propriétés : Multilevel, Indicator)
+- Ajout de la configuration *Zooz ZES11 - ZSE 11 - Q SENSOR* (propriétés : Motion, Temperature, Luminance, Humidity, Battery, Notification Alarm-Level, Notification Power-Status, Notification Motion, Notification Battery-Maintenance, Indicator)
+- Ajout de la configuration *Zooz ZES18 - ZSE 18 - MOTION SENSOR* (propriétés : Motion, Battery, Notification Alarm-Level, Notification Power-Status, Notification Motion, Notification Magnetic, Indicator)
+
+# 15/11/2024
+
+- Passage à la version *9.26.0* de ZwaveJsUI
+- Correction de la méthode d'installation des dépendances
+
+# 10/11/2024
+
+- Support du protocole mqtts
+
 # 27/09/2024
 
-- Changement des versions minimum, core 4.4 et OS Debian 11 minimum
+- Changement des versions minimales: core 4.4 et OS Debian 11
 
 # 26/09/2024
 
 **Améliorations**
 
 - Passage à la version *9.20.0* de ZwaveJsUI
-- Préparation pour merge le mode distant dans la prochaine version
 - Nettoyage de code
 
 **Ajouts de Configurations**
@@ -36,9 +132,9 @@
 **Ajouts de Configurations**
 
 - Ajout de la configuration *Neo Signal Repeater* (propriétés : Temperature, Humidity)
-- Ajout de la configuration *Shelly Qubino Wave 1* (propriétés : Switch, Notification Mains, Notification Over-Current, Notification Heat-Sensor) 
+- Ajout de la configuration *Shelly Qubino Wave 1* (propriétés : Switch, Notification Mains, Notification Over-Current, Notification Heat-Sensor)
 - Ajout de la configuration *Shelly Qubino Wave 1 PM* (propriétés : Switch, Power, Energy, Notification Mains, Notification Over-Current, Notification Heat-Sensor)
-- Ajout de la configuration *Shelly Qubino Wave Pro 1* (propriétés : Switch, Notification Mains, Notification Heat-Sensor) 
+- Ajout de la configuration *Shelly Qubino Wave Pro 1* (propriétés : Switch, Notification Mains, Notification Heat-Sensor)
 - Ajout de la configuration *Shelly Qubino Wave Pro 1 PM* (propriétés : Switch, Power, Energy, Notification Mains, Notification Over-Current, Notification Over-Voltage, Notification Heat-Sensor)
 - Ajout de la configuration *Shelly Qubino Wave 2 PM* (propriétés : Switch, Power, Energy, Notification Mains, Notification Over-Current, Notification Heat-Sensor)
 - Ajout de la configuration *Shelly Qubino Wave Pro 2* (propriétés : Switch)
@@ -57,7 +153,6 @@
 
 - Rajout d'une fonction additionalDependancyCheck pour le core
 
-
 **Modifications de Configurations**
 
 - Modification de la configuration *MCOhome Mh7h* pour utiliser les propriétés
@@ -67,7 +162,7 @@
 **Améliorations**
 
 - Rajout d'une option permettant d'activer ou désactiver le *Soft Reset*
-- Passage à la version *9.6.2* de ZwaveJsUI 
+- Passage à la version *9.6.2* de ZwaveJsUI
 
 **Ajouts de Configurations**
 
@@ -143,7 +238,6 @@
 - Ajout de la configuration *Thermofloor Heat It ZM Relay High Power* (propriétés : Switch, Power, Energy, Notification Heat Sensor, Notification Over Load, Centra Scene)
 - Ajout d'une sous propriété *notification-simple* pour la propriété *Opening*
 
-
 # 11/09/2023
 
 **Corrections**
@@ -194,7 +288,6 @@
 - Rajout d'un message dans le centre de message lorsqu'un noeud passe Dead (en plus de la commande statut de l'équipement)
 - Rajout d'un message dans le centre de message lorsqu'un noeud passe Alive après avoir été Dead (en plus de la commande statut de l'équipement)
 - Rajout d'un message dans le centre de message lorsqu'un noeud ne s'est pas réveillé après 4 fois son interval de réveil
-
 
 **Ajouts de Configurations**
 
@@ -311,7 +404,6 @@
 - Ajout de la configuration *U-Fairy GR-201N* (propriétés : Switch)
 - Ajout de la configuration *Danfoss Boiler Relay* (propriétés : Switch)
 - Ajout de la configuration *Benext Alarm Sound* (propriétés : Switch)
-
 
 # 24/12/2022
 
@@ -604,7 +696,6 @@
 - Rajout d'une page permettant de voir tous les *paramètres* en attente
 - Rajout d'une page webapp permettant de voir tous les *paramètres* en attente
 - Rajout d'un bouton supprimer sur la page *En attente*. Permet de supprimer une ligne en attente. Celui-ci ne supprime pas l'ordre qui a été envoyé au contrôleur mais seulement l'information en attente dans Jeedom (utile pour les paramètres de calibration par exemple qui ne prennent jamais la valeur envoyée ou tout autre paramètre où ca serait inutile)
-
 
 **Modifications de Configurations**
 

@@ -4,16 +4,107 @@
 >
 >Wenn es keine Informationen über die Aktualisierung gibt, bedeutet dies, dass es sich nur um die Aktualisierung von Dokumentation, Übersetzung oder Text handelt.
 
+# 01/06/2026
+
+- Zur Version wechseln *11.15.1* de ZwaveJsUI (stable)
+- Zur Version wechseln *11.19.0* de ZwaveJsUI (beta)
+
+# 31/03/2026
+
+- Zur Version wechseln *11.12.0* de ZwaveJsUI (stable)
+- Zur Version wechseln *11.15.1* de ZwaveJsUI (beta)
+
+# 16/03/2026
+
+- Configuration automatique du plugin sur les boxes officielles *(Jeedom 4.5.3 mini)*
+
+# 09/03/2026
+
+- Konfig hinzugefügt *Shelly Qubino Wave Door/Window (QNDW-002C)* (Eigenschaften : Opening, Luminance, Direction, Battery)
+- Konfig hinzugefügt *Shelly Qubino Wave Plug (QNPL-0A112)* (Eigenschaften : Switch, Power, Energy)
+- Konfig hinzugefügt *Zooz ZEN58 Low Voltage XS Relay* (Eigenschaften : Switch, Power, Energy, Voltage, Current)
+- Correction de la configuration *Aeotec ZWA001* (valeur par défaut du paramètre de température de couleur)
+
+# 02/03/2026
+
+- Correction mineure sur la page *Statistiques*
+
+# 24/02/2026
+
+- Support des images d'équipement personnalisées *(Jeedom 4.5 mini)*
+- Ajout des traductions manquantes pour les messages arrivant dans le centre de notifications
+
+# 21/02/2026
+
+- Zur Version wechseln *11.12.0* de ZwaveJsUI (beta) *(corrige les alertes "Dead" intempestives)*
+
+# 11/02/2026
+
+- Zur Version wechseln *11.6.1* de ZwaveJsUI (stable)
+- Zur Version wechseln *11.11.0* de ZwaveJsUI (beta)
+- Ajout d'une option dans la page de configuration du plugin pour configurer un port de contrôleur distant via socket tcp (utile pour les controleurs comme le SLZB-MR1U)
+
+# 04/11/2025
+
+- Zur Version wechseln *11.2.1* de ZwaveJsUI (stable)
+- Zur Version wechseln *11.6.1* de ZwaveJsUI (beta)
+
+# 16/09/2025
+
+- Zur Version wechseln *10.5.1* de ZwaveJsUI (stable)
+- Zur Version wechseln *11.2.1* de ZwaveJsUI (beta)
+
+# 24/06/2025
+
+- Correction d'un bug qui se produisait sous PHP8 lors de la création des commandes manquantes.
+
+# 10/06/2025
+
+- Mise à jour de la configuration *Mco Home MH-S412 double*
+
+# 05/06/2025
+
+**Verbesserungen**
+
+- Ajout de la procédure d'intégration
+
+**Konfigurationsergänzungen**
+
+- Konfig hinzugefügt *Shelly Qubino WAVE_PM_MINI - WAVE PM Mini - Relay* (Eigenschaften : Power, Energy, Notification Over-Current, Notification Over-Voltage, Notification Heat-Sensor, Notification Alarm-Level, Notification Mains, Indicator)
+- Konfig hinzugefügt *Zooz ZAC38 - ZAC38 - Range extender* (Eigenschaften : Switch, Notification Alarm-Level, Notification Mains, Indicator, Battery)
+
+# 04/06/2025
+
+**Konfigurationsergänzungen**
+
+- Konfig hinzugefügt *Mco Home MH-S411 Simple* (Eigenschaften : Switch, Scene, Central Scene)
+- Konfig hinzugefügt *Remotec ZXT-800* (Eigenschaften : Air temperature, Thermostatmode, Thermostatoperatingstate, Thermostatsetpoint, Thermostatfanmode, Indicator)
+- Konfig hinzugefügt *Shelly Qubino Wave 1PM Mini QMSW-0A1P8* (Eigenschaften : Switch, Power, Energy, Notification Mains, Notification Over-Current, Notification Heat-Sensor, Notification Alarm-Level)
+- Konfig hinzugefügt *Shelly Qubino Wave 1 Mini QMSW-0A1X8* (Eigenschaften : Switch, Notification Mains, Notification Heat-Sensor, Notification Alarm-Level)
+- Konfig hinzugefügt *Heatit Thermostat Z-TEMP3* (Eigenschaften : Air temperature, Humidity, Thermostatmode, Thermostatoperatingstate, Thermostatsetpoint, Battery, Indicator)
+- Konfig hinzugefügt *Zooz ZEN15 - Power Switch* (Eigenschaften : Switch, Notification Alarm-Level, Notification Power-Status, Scene, Indicator, Voltage, Power, Energy, Current)
+- Konfig hinzugefügt *Zooz ZEN54_LR - 0-10V Dimmer* (Eigenschaften : Multilevel, Indicator)
+- Konfig hinzugefügt *Zooz ZES11 - ZSE 11 - Q SENSOR* (Eigenschaften : Motion, Temperature, Luminance, Humidity, Battery, Notification Alarm-Level, Notification Power-Status, Notification Motion, Notification Battery-Maintenance, Indicator)
+- Konfig hinzugefügt *Zooz ZES18 - ZSE 18 - MOTION SENSOR* (Eigenschaften : Motion, Battery, Notification Alarm-Level, Notification Power-Status, Notification Motion, Notification Magnetic, Indicator)
+
+# 15.11.2024
+
+- Zur Version wechseln *9.26.0* von ZwaveJsUI
+- Korrigieren Sie die Abhängigkeitsinstallationsmethode
+
+# 10/11/2024
+
+- Unterstützung des mqtts-Protokolls
+
 # 27.09.2024
 
-- Änderung der Mindestversionen, Core 4.4 und OS Debian 11 mindestens
+- Änderung der Mindestversionen: Kern 4.4 und OS Debian 11
 
 # 26.09.2024
 
 **Verbesserungen**
 
 - Zur Version wechseln *9.20.0* von ZwaveJsUI
-- Wir bereiten die Zusammenführung des Remote-Modus mit der nächsten Version vor
 - Codebereinigung
 
 **Konfigurationsergänzungen**
@@ -36,9 +127,9 @@
 **Konfigurationsergänzungen**
 
 - Konfig hinzugefügt *Neo-Signal-Repeater* (Eigenschaften : Temperatur Feuchtigkeit)
-- Konfig hinzugefügt *Shelly Qubino Welle 1* (Eigenschaften : Schalter, Zeigerbenachrichtigung, Überstrombenachrichtigung, Wärmesensorbenachrichtigung) 
+- Konfig hinzugefügt *Shelly Qubino Welle 1* (Eigenschaften : Schalter, Zeigerbenachrichtigung, Überstrombenachrichtigung, Wärmesensorbenachrichtigung)
 - Konfig hinzugefügt *Shelly Qubino Wave 13 Uhr* (Eigenschaften : Schalter, Stromversorgung, Energie, Netzbenachrichtigung, Überstrombenachrichtigung, Wärmesensorbenachrichtigung)
-- Konfig hinzugefügt *Shelly Qubino Wave Pro 1* (Eigenschaften : Schalter, Handbenachrichtigung, Wärmesensorbenachrichtigung) 
+- Konfig hinzugefügt *Shelly Qubino Wave Pro 1* (Eigenschaften : Schalter, Handbenachrichtigung, Wärmesensorbenachrichtigung)
 - Konfig hinzugefügt *Shelly Qubino Wave Pro 13:00 Uhr* (Eigenschaften : Schalter, Stromversorgung, Energie, Netzbenachrichtigung, Überstrombenachrichtigung, Überspannungsbenachrichtigung, Wärmesensorbenachrichtigung)
 - Konfig hinzugefügt *Shelly Qubino Wave 14 Uhr* (Eigenschaften : Schalter, Stromversorgung, Energie, Netzbenachrichtigung, Überstrombenachrichtigung, Wärmesensorbenachrichtigung)
 - Konfig hinzugefügt *Shelly Qubino Wave Pro 2* (Eigenschaften : Switch)
@@ -57,7 +148,6 @@
 
 - Hinzufügung einer zusätzlichenDependancyCheck-Funktion für den Kern
 
-
 **Konfigurationsänderungen**
 
 - Ändern der Konfiguration *MCOhome Mh7h* um die Eigenschaften zu verwenden
@@ -67,7 +157,7 @@
 **Verbesserungen**
 
 - Option zum Aktivieren oder Deaktivieren hinzugefügt *Soft-Reset*
-- Zur Version wechseln *9.6.2* von ZwaveJsUI 
+- Zur Version wechseln *9.6.2* von ZwaveJsUI
 
 **Konfigurationsergänzungen**
 
@@ -143,7 +233,6 @@
 - Konfig hinzugefügt *Thermofloor Heat It ZM-Relais mit hoher Leistung* (Eigenschaften : Schalter, Strom, Energie, Wärmesensorbenachrichtigung, Überlastbenachrichtigung, Centra-Szene)
 - Hinzufügen einer Untereigenschaft *einfache Benachrichtigung* für Eigentum *Öffnung*
 
-
 # 11.09.2023
 
 **Behebt**
@@ -194,7 +283,6 @@
 - Hinzufügen einer Nachricht im Nachrichtencenter, wenn ein Knoten ausfällt (zusätzlich zum Gerätestatusbefehl))
 - Hinzufügen einer Nachricht im Nachrichtencenter, wenn ein Knoten aktiv wird, nachdem er tot ist (zusätzlich zum Gerätestatusbefehl))
 - Hinzufügen einer Nachricht im Nachrichtencenter, wenn ein Knoten nach dem 4-fachen seines Weckintervalls nicht aufgewacht ist
-
 
 **Konfigurationsergänzungen**
 
@@ -311,7 +399,6 @@
 - Konfig hinzugefügt *U-Fee GR-201N* (Eigenschaften : Switch)
 - Konfig hinzugefügt *Danfoss Kesselrelais* (Eigenschaften : Switch)
 - Konfig hinzugefügt *Nächster Alarmton* (Eigenschaften : Switch)
-
 
 # 24.12.2022
 
@@ -604,7 +691,6 @@
 - Hinzufügung einer Seite, auf der alle angezeigt werden können *die Einstellungen* steht aus
 - Hinzufügen einer Webapp-Seite, auf der alle angezeigt werden können *die Einstellungen* steht aus
 - Hinzufügen einer Schaltfläche zum Löschen auf der Seite *Steht aus*. Ermöglicht das Löschen einer gehaltenen Leitung. Dies löscht nicht den Auftrag, der an den Controller gesendet wurde, sondern nur die in Jeedom anstehenden Informationen (nützlich für Kalibrierungsparameter zum Beispiel, die niemals den gesendeten Wert annehmen, oder andere Parameter, bei denen er unbrauchbar wäre)
-
 
 **Konfigurationsänderungen**
 

@@ -4,16 +4,107 @@
 >
 >If there is no information on the update, it means that it concerns only the update of documentation, translation or text.
 
+# 01/06/2026
+
+- Switch to version *11.15.1* de ZwaveJsUI (stable)
+- Switch to version *11.19.0* de ZwaveJsUI (beta)
+
+# 31/03/2026
+
+- Switch to version *11.12.0* de ZwaveJsUI (stable)
+- Switch to version *11.15.1* de ZwaveJsUI (beta)
+
+# 16/03/2026
+
+- Configuration automatique du plugin sur les boxes officielles *(Jeedom 4.5.3 mini)*
+
+# 09/03/2026
+
+- Added config *Shelly Qubino Wave Door/Window (QNDW-002C)* (properties : Opening, Luminance, Direction, Battery)
+- Added config *Shelly Qubino Wave Plug (QNPL-0A112)* (properties : Switch, Power, Energy)
+- Added config *Zooz ZEN58 Low Voltage XS Relay* (properties : Switch, Power, Energy, Voltage, Current)
+- Correction de la configuration *Aeotec ZWA001* (valeur par défaut du paramètre de température de couleur)
+
+# 02/03/2026
+
+- Correction mineure sur la page *Statistiques*
+
+# 24/02/2026
+
+- Support des images d'équipement personnalisées *(Jeedom 4.5 mini)*
+- Ajout des traductions manquantes pour les messages arrivant dans le centre de notifications
+
+# 21/02/2026
+
+- Switch to version *11.12.0* de ZwaveJsUI (beta) *(corrige les alertes "Dead" intempestives)*
+
+# 11/02/2026
+
+- Switch to version *11.6.1* de ZwaveJsUI (stable)
+- Switch to version *11.11.0* de ZwaveJsUI (beta)
+- Ajout d'une option dans la page de configuration du plugin pour configurer un port de contrôleur distant via socket tcp (utile pour les controleurs comme le SLZB-MR1U)
+
+# 04/11/2025
+
+- Switch to version *11.2.1* de ZwaveJsUI (stable)
+- Switch to version *11.6.1* de ZwaveJsUI (beta)
+
+# 16/09/2025
+
+- Switch to version *10.5.1* de ZwaveJsUI (stable)
+- Switch to version *11.2.1* de ZwaveJsUI (beta)
+
+# 24/06/2025
+
+- Correction d'un bug qui se produisait sous PHP8 lors de la création des commandes manquantes.
+
+# 10/06/2025
+
+- Mise à jour de la configuration *Mco Home MH-S412 double*
+
+# 05/06/2025
+
+**Improvements**
+
+- Ajout de la procédure d'intégration
+
+**Configuration Additions**
+
+- Added config *Shelly Qubino WAVE_PM_MINI - WAVE PM Mini - Relay* (properties : Power, Energy, Notification Over-Current, Notification Over-Voltage, Notification Heat-Sensor, Notification Alarm-Level, Notification Mains, Indicator)
+- Added config *Zooz ZAC38 - ZAC38 - Range extender* (properties : Switch, Notification Alarm-Level, Notification Mains, Indicator, Battery)
+
+# 04/06/2025
+
+**Configuration Additions**
+
+- Added config *Mco Home MH-S411 Simple* (properties : Switch, Scene, Central Scene)
+- Added config *Remotec ZXT-800* (properties : Air temperature, Thermostatmode, Thermostatoperatingstate, Thermostatsetpoint, Thermostatfanmode, Indicator)
+- Added config *Shelly Qubino Wave 1PM Mini QMSW-0A1P8* (properties : Switch, Power, Energy, Notification Mains, Notification Over-Current, Notification Heat-Sensor, Notification Alarm-Level)
+- Added config *Shelly Qubino Wave 1 Mini QMSW-0A1X8* (properties : Switch, Notification Mains, Notification Heat-Sensor, Notification Alarm-Level)
+- Added config *Heatit Thermostat Z-TEMP3* (properties : Air temperature, Humidity, Thermostatmode, Thermostatoperatingstate, Thermostatsetpoint, Battery, Indicator)
+- Added config *Zooz ZEN15 - Power Switch* (properties : Switch, Notification Alarm-Level, Notification Power-Status, Scene, Indicator, Voltage, Power, Energy, Current)
+- Added config *Zooz ZEN54_LR - 0-10V Dimmer* (properties : Multilevel, Indicator)
+- Added config *Zooz ZES11 - ZSE 11 - Q SENSOR* (properties : Motion, Temperature, Luminance, Humidity, Battery, Notification Alarm-Level, Notification Power-Status, Notification Motion, Notification Battery-Maintenance, Indicator)
+- Added config *Zooz ZES18 - ZSE 18 - MOTION SENSOR* (properties : Motion, Battery, Notification Alarm-Level, Notification Power-Status, Notification Motion, Notification Magnetic, Indicator)
+
+# 11/15/2024
+
+- Switch to version *9.26.0* by ZwaveJsUI
+- Fixed dependency installation method
+
+# 10/11/2024
+
+- Support for mqtts protocol
+
 # 09/27/2024
 
-- Changed minimum versions, core 4.4 and OS Debian 11 minimum
+- Change of minimum versions: core 4.4 and OS Debian 11
 
 # 09/26/2024
 
 **Improvements**
 
 - Switch to version *9.20.0* by ZwaveJsUI
-- Preparing to merge remote mode into next release
 - Code cleaning
 
 **Configuration Additions**
@@ -36,9 +127,9 @@
 **Configuration Additions**
 
 - Added config *Neo Signal Repeater* (properties : Temperature, Humidity)
-- Added config *Shelly Qubino Wave 1* (properties : Switch, Hands Notification, Over-Current Notification, Heat-Sensor Notification) 
+- Added config *Shelly Qubino Wave 1* (properties : Switch, Hands Notification, Over-Current Notification, Heat-Sensor Notification)
 - Added config *Shelly Qubino Wave 1 PM* (properties : Switch, Power, Energy, Mains Notification, Over-Current Notification, Heat-Sensor Notification)
-- Added config *Shelly Qubino Wave Pro 1* (properties : Switch, Hands Notification, Heat-Sensor Notification) 
+- Added config *Shelly Qubino Wave Pro 1* (properties : Switch, Hands Notification, Heat-Sensor Notification)
 - Added config *Shelly Qubino Wave Pro 1 PM* (properties : Switch, Power, Energy, Mains Notification, Over-Current Notification, Over-Voltage Notification, Heat-Sensor Notification)
 - Added config *Shelly Qubino Wave 2 PM* (properties : Switch, Power, Energy, Mains Notification, Over-Current Notification, Heat-Sensor Notification)
 - Added config *Shelly Qubino Wave Pro 2* (properties : Switch)
@@ -57,7 +148,6 @@
 
 - Addition of an additionalDependancyCheck function for the core
 
-
 **Configuration Changes**
 
 - Changing the configuration *MCOhome Mh7h* to use the properties
@@ -67,7 +157,7 @@
 **Improvements**
 
 - Added an option to enable or disable the *Soft Reset*
-- Switch to version *9.6.2* by ZwaveJsUI 
+- Switch to version *9.6.2* by ZwaveJsUI
 
 **Configuration Additions**
 
@@ -143,7 +233,6 @@
 - Added config *Thermofloor Heat It ZM Relay High Power* (properties : Switch, Power, Energy, Heat Sensor Notification, Over Load Notification, Centra Scene)
 - Adding a subproperty *simple-notification* for property *Opening*
 
-
 # 09/11/2023
 
 **Fixes**
@@ -194,7 +283,6 @@
 - Addition of a message in the message center when a node goes Dead (in addition to the equipment status command)
 - Addition of a message in the message center when a node goes Alive after being Dead (in addition to the equipment status command)
 - Addition of a message in the message center when a node has not woken up after 4 times its wakeup interval
-
 
 **Configuration Additions**
 
@@ -311,7 +399,6 @@
 - Added config *U-Fairy GR-201N* (properties : Switch)
 - Added config *Danfoss Boiler Relay* (properties : Switch)
 - Added config *Benext Alarm Sound* (properties : Switch)
-
 
 # 24/12/2022
 
@@ -604,7 +691,6 @@
 - Addition of a page allowing to see all the *settings* pending
 - Addition of a webapp page allowing to see all the *settings* pending
 - Addition of a delete button on the page *Pending*. Allows you to delete a line on hold. This does not delete the order that has been sent to the controller but only the information pending in Jeedom (useful for calibration parameters for example which never take the value sent or any other parameter where it would be useless)
-
 
 **Configuration Changes**
 
