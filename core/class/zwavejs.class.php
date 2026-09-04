@@ -2462,33 +2462,41 @@ class zwavejs extends eqLogic {
         $isFailed->save();
     }
 
-    public function getConfFilePath($_all = false) {
-        foreach (ls(dirname(__FILE__) . '/../config/devices', '*_' . $this->getConfiguration('manufacturer_id'), false, array('folders', 'quiet')) as $folder) {
-            foreach (ls(dirname(__FILE__) . '/../config/devices/' . $folder, '*.json', false, array('files', 'quiet')) as $file) {
-                $conf = is_json(file_get_contents(dirname(__FILE__) . '/../config/devices/' . $folder . '/' . $file), array());
-                if (!is_array($conf)) {
-                    continue;
-                }
-                if (isset($conf['versions']) && isset($conf['versions'][$this->getConfiguration('product_type')])) {
-                    if (in_array($this->getConfiguration('product_id'), $conf['versions'][$this->getConfiguration('product_type')])) {
-                        $return = $folder . $file;
-                        return $return;
-                    }
-                }
-            }
-        }
-        return false;
-    }
+/*
+	public function getImage() {
+		$file = 'plugins/zwavejs/core/config/devices/' . $this->getImgFilePath();
+		if (!is_file(__DIR__ . '/../../../../' . $file)) {
+			return 'plugins/zwavejs/plugin_info/zwavejs_icon.png';
+		}
+		return $file;
+	}
+*/
 
-    public function getImgFilePath() {
-        $path = str_replace('.json', '', $this->getConfFilePath());
-        if (is_file(dirname(__FILE__) . '/../config/devices/' . $path . '.png')) {
-            return  $path . '.png';
-        } else if (is_file(dirname(__FILE__) . '/../config/devices/' . $path . '.jpg')) {
-            return  $path . '.jpg';
-        }
-        return false;
-    }
+	public function getImage() {
+		$default = parent::getImage();
+		$plugin = plugin::byId(__CLASS__);
+		if ($default != $plugin->getPathImgIcon()) {
+			return $default; // this is a custom image uploaded by the user, we keep it
+		}
+
+		$file = 'plugins/zwavejs/core/config/devices/' . $this->getImgFilePath();
+		if (!is_file(__DIR__ . '/../../../../' . $file)) {
+			return $default;
+		}
+		return $file;
+	}
+
+	public function createCommand($_update = 0) {
+		log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] id:' . $this->getLogicalId() . ' name: ' .  $this->getName());
+		if (!is_numeric($this->getLogicalId())) {
+			return;
+		}
+		if (is_file(dirname(__FILE__) . '/../config/devices/' . $this->getConfFilePath())) {
+			$this->loadCmdFromConf($_update);
+			self::nodeAction('syncValues', $this->getLogicalId());
+			return;
+		}
+	}
 
     public function getImage() {
         $file = 'plugins/zwavejs/core/config/devices/' . $this->getImgFilePath();

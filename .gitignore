@@ -1,13 +1,16 @@
 nbproject/
 data/
+vendor/
 test.php
 core/config/common.config.php
+resources/zwavejsd/node_modules/
 plugins
 sftp-config.json
 .project
 .DS_Store
 Thumbs.db
 *.php~
+*.lock
 docs/_site/
 docs/Gemfile.lock
 docs/.sass-cache/
