@@ -1,0 +1,16 @@
+{
+    "name": "lxrootard/zwavejs",
+    "description": "zwavejs plugin enhanced",
+    "license": "GPL",
+    "authors": [
+        {
+            "name": "lxrootard"
+        }
+    ],
+    "require": {
+	"lxrootard/jeedom-tools" : "^0.2"
+    },
+    "config": {
+        "vendor-dir": "vendor/"
+    }
+}

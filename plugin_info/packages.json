@@ -1,14 +1,12 @@
 {
-  "plugin" : {
-  },
   "apt":{
    "nodejs" : {}
   },
   "npm": {
    "plugins/zwavejs/resources/zwavejsd"  : {}
   },
-  "pre-install" : {
-  },
-  "post-install" : {
+  "composer": {
+    "plugins/zwavejs"  : {}
   }
+
 }

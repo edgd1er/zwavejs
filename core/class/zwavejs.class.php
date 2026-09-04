@@ -19,8 +19,7 @@
 /* * ***************************Includes********************************* */
 
 require_once __DIR__  . '/../../../../core/php/core.inc.php';
-if (!class_exists('jeedomtools\MQTTClient'))
-    require_once __DIR__  . '/MQTTClient.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 use jeedomtools\MQTTClient as zw_MQTTClient;
 
@@ -562,46 +561,66 @@ class zwavejs extends eqLogic {
             if ($deamon_info['launchable'] != 'ok')
                 throw new Exception('Veuillez vérifier la configuration');
 
-            $mqttSettings = config::byKey('mqtt', __CLASS__);
-            $mqttSettings['cbclass'] = 'jeeZwave';
-            config::save('mqtt', json_encode($mqttSettings), __CLASS__);
-            log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] settings MQTT: ' . json_encode($mqttSettings));
-            log::add(__CLASS__, 'info', '[' . __FUNCTION__ . '] starting MQTT daemon.');
-            $mqttd = self::getDeamon();
-            $mqttd->start ($mqttSettings);
-            sleep(2);
-            if (! ($mqttd->isRunning())) {
-                log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] Démon MQTT non démarré ou mauvais paramétrage, vérifier les logs');
-                throw new Exception('[' . __FUNCTION__ . '] Démon MQTT non démarré ou mauvais paramétrage, vérifier les logs');
-            }
-            else {
-                log::add(__CLASS__,'info', '[' . __FUNCTION__ . '] Démon MQTT démarré');
-            }
-            $mqttd->send ('addTopic',$mqttSettings['prefix']);
-            $zwSettings = config::byKey('zwavejs', __CLASS__, array());
-            $mode = $zwSettings['mode'];
-            log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] settings ZWaveJS: ' . json_encode($zwSettings, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-            self::generateSettings($mode);
-            if ($mode == 'local') {
-                config::save('driverStatus', 0, __CLASS__);
-                $zwavejs_path = realpath(dirname(__FILE__) . '/../../resources/zwave-js-ui');
-                $data_path = dirname(__FILE__) . '/../../data/store';
-                chdir($zwavejs_path);
-                $cmd = '';
-                $cmd .= 'STORE_DIR=' . $data_path;
-                $cmd .= ' KEY_S0_Legacy=' . config::byKey('s0key', __CLASS__);
-                $cmd .= ' KEY_S2_Unauthenticated=' . config::byKey('s2key_unauth', __CLASS__);
-                $cmd .= ' KEY_S2_Authenticated=' . config::byKey('s2key_auth', __CLASS__);
-                $cmd .= ' KEY_S2_AccessControl=' . config::byKey('s2key_access', __CLASS__);
-                $cmd .= ' SESSION_SECRET=' . 'jeedomSession';
-                $cmd .= ' yarn start';
-                log::add(__CLASS__, 'info', __('Démarrage du démon ZwaveJS', __FILE__) . ' : ' . $cmd);
-                exec(system::getCmdSudo() . $cmd . ' >> ' . log::getPathToLog('zwavejsd') . ' 2>&1 &');
-            } else {
-                if (! self::checkZWaveJSSvc()){
-                    config::save('remoteDeamonStatus', 'stopped' ,__CLASS__);
-                    throw new Exception(__('Service ZWaveJS non démarré ou mal paramétré, vérifiez les logs',__FILE__));
-                }
+		   $mqttSettings = config::byKey('mqtt', __CLASS__);
+		   $mqttSettings['cbclass'] = 'jeeZwave';
+		   config::save('mqtt', json_encode($mqttSettings), __CLASS__);
+		   log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] settings MQTT: ' . json_encode($mqttSettings));
+		   $mqttd = self::getDeamon();
+		   $mqttd->start ($mqttSettings);
+		   sleep(3);
+		   if (! ($mqttd->isRunning()))
+			throw new Exception('Démon MQTT non démarré ou mauvais paramétrage, vérifier les logs');
+		   $mqttd->send ('addTopic',$mqttSettings['prefix']);
+		   $zwSettings = config::byKey('zwavejs', __CLASS__, array());
+		   $mode = $zwSettings['mode'];
+		   log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] settings ZWaveJS: ' . json_encode($zwSettings));
+		   self::generateSettings($mode);
+		   if ($mode == 'local') {
+			config::save('driverStatus', 0, __CLASS__);
+			$zwavejs_path = realpath(dirname(__FILE__) . '/../../resources/zwave-js-ui');
+			$data_path = dirname(__FILE__) . '/../../data/store';
+			chdir($zwavejs_path);
+			$cmd = '';
+			$cmd .= 'STORE_DIR=' . $data_path;
+			$cmd .= ' KEY_S0_Legacy=' . config::byKey('s0key', __CLASS__);
+			$cmd .= ' KEY_S2_Unauthenticated=' . config::byKey('s2key_unauth', __CLASS__);
+			$cmd .= ' KEY_S2_Authenticated=' . config::byKey('s2key_auth', __CLASS__);
+			$cmd .= ' KEY_S2_AccessControl=' . config::byKey('s2key_access', __CLASS__);
+			$cmd .= ' SESSION_SECRET=' . 'jeedomSession';
+			$cmd .= ' yarn start';
+			log::add(__CLASS__, 'info', __('Démarrage du démon ZwaveJS', __FILE__) . ' : ' . $cmd);
+			exec(system::getCmdSudo() . $cmd . ' >> ' . log::getPathToLog('zwavejsd') . ' 2>&1 &');
+		   } else {
+			if (! self::checkZWaveJSSvc())
+				throw new Exception(__('Service ZWaveJS non démarré ou mal paramétré, vérifiez les logs',__FILE__));
+			self::getInfo();
+			config::save('remoteDeamonStatus', 'running' ,__CLASS__);
+		   }
+		   $i = 0;
+		   while ($i < 10) {
+			$deamon_info = self::deamon_info();
+			if ($deamon_info['state'] == 'ok') {
+				break;
+			}
+			sleep(1);
+			$i++;
+		   }
+		   if ($i >= 10) {
+			throw new Exception('Impossible de démarrer le démon ZwaveJS, consultez les logs');
+			//log::add(__CLASS__, 'error', __('Impossible de démarrer le démon ZwaveJS, consultez les logs', __FILE__), 'unableStartDeamon');
+			//return false;
+		   }
+		   config::save('lastStart', time(), __CLASS__);
+		   message::removeAll(__CLASS__, 'unableStartDeamon');
+		   self::cleanHistory();
+		   log::add(__CLASS__, 'info', 'Démon zwavejs lancé');
+		   event::add('zwavejs::refreshStatus',array());
+		   return true;
+		} catch (Exception $e) {
+		   self::send_alert ($e->getMessage());
+		   return false;
+		}
+	}
 
                 self::getInfo();
                 config::save('remoteDeamonStatus', 'running' ,__CLASS__);
