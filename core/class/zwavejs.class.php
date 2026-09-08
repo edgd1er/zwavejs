@@ -538,19 +538,16 @@ class zwavejs extends eqLogic {
         return $return;
     }
 
-    public static function isRunning() {
-        $zwSettings = config::byKey('zwavejs', __CLASS__, array());
-        $mode = $zwSettings['mode'];
-        $status=false;
-        if (($mode == 'local') && (! empty(system::ps('server/bin/www.js')))) {
-            $status=true;
-        }
-        if (($mode == 'remote') && (config::byKey('remoteDeamonStatus', __CLASS__,'') == "running")){
-            $status=true;
-        }
-        log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] result='.$status.', mode=' . $mode.', remoteDeamonStatus='.config::byKey('remoteDeamonStatus', __CLASS__,''));
-        return $status;
-    }
+	public static function isRunning() {
+		$zwSettings = config::byKey('zwavejs', __CLASS__, array());
+		$mode = $zwSettings['mode'];
+//              log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] mode=' . $mode);
+		if (($mode == 'local') and (! empty(system::ps('server/bin/www.js'))))
+			return true;
+		if (($mode == 'remote') and (config::byKey('remoteDeamonStatus', __CLASS__,'') == "running"))
+			return self::getDeamon()->isRunning();
+		return false;
+	}
 
     public static function deamon_start($_debug = false) {
         config::save('controllerStatus', 'none', __CLASS__);
@@ -567,7 +564,11 @@ class zwavejs extends eqLogic {
 		   log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] settings MQTT: ' . json_encode($mqttSettings));
 		   $mqttd = self::getDeamon();
 		   $mqttd->start ($mqttSettings);
-		   sleep(3);
+		   $i = 0;
+		   while (($i < 10) && (! $mqttd->isRunning())) {
+			sleep(1);
+			$i++;
+		   }
 		   if (! ($mqttd->isRunning()))
 			throw new Exception('Démon MQTT non démarré ou mauvais paramétrage, vérifier les logs');
 		   $mqttd->send ('addTopic',$mqttSettings['prefix']);
@@ -622,77 +623,52 @@ class zwavejs extends eqLogic {
 		}
 	}
 
-                self::getInfo();
-                config::save('remoteDeamonStatus', 'running' ,__CLASS__);
-            }
-            $i = 0;
-            while ($i < 10) {
-                $deamon_info = self::deamon_info();
-                if ($deamon_info['state'] == 'ok') {
-                    break;
-                }
-                sleep(1);
-                $i++;
-            }
-            if ($i >= 10) {
-                throw new Exception('Impossible de démarrer le démon ZwaveJS, consultez les logs');
-                //log::add(__CLASS__, 'error', __('Impossible de démarrer le démon ZwaveJS, consultez les logs', __FILE__), 'unableStartDeamon');
-                //return false;
-            }
-            config::save('lastStart', time(), __CLASS__);
-            message::removeAll(__CLASS__, 'unableStartDeamon');
-            self::cleanHistory();
-            log::add(__CLASS__, 'info', 'Démon zwavejs lancé');
-            event::add('zwavejs::refreshStatus',array());
-            return true;
-        } catch (Exception $e) {
-            self::send_alert ($e->getMessage());
-            return false;
-        }
-    }
-
-    public static function deamon_stop() {
-        log::add(__CLASS__, 'info', __('Arrêt du démon ZwaveJS', __FILE__));
-        config::save('controllerStatus', 'none', __CLASS__);
-        config::save('driverStatus', 0, __CLASS__);
-        $zwSettings = config::byKey('zwavejs', __CLASS__, array());
-        $mqttSettings = config::byKey('mqtt', __CLASS__,array());
-        $mqttd = self::getDeamon();
-        if ($mqttd->isRunning()) {
-            $mqttd->send ('removeTopic',$mqttSettings['prefix']);
-            $mqttd->stop();
-        }
-        if ($zwSettings['mode'] == 'local') {
-            $find = 'server/bin/www.js';
-            $cmd = "(ps ax || ps w) | grep -ie '" . $find . "' | grep -v grep | awk '{print $1}' | xargs " . system::getCmdSudo() . "kill -15 > /dev/null 2>&1";
-            exec($cmd);
-            $i = 0;
-            while ($i < 5) {
-                $deamon_info = self::deamon_info();
-                if ($deamon_info['state'] == 'nok') {
-                    break;
-                }
-                sleep(1);
-                $i++;
-            }
-            if ($i >= 5) {
-                system::kill('server/bin/www.js', true);
-                $i = 0;
-                while ($i < 5) {
-                    $deamon_info = self::deamon_info();
-                    if ($deamon_info['state'] == 'nok') {
-                        break;
-                    }
-                    sleep(1);
-                    $i++;
-                }
-            }
-            system::fuserk($zwSettings['port']);
-        } else {
-            config::save('remoteDeamonStatus','stopped',__CLASS__);
-            cache::set('zwavejs::version', 'N/A');
-        }
-    }
+	public static function deamon_stop() {
+		log::add(__CLASS__, 'info', __('Arrêt du démon ZwaveJS', __FILE__));
+		config::save('controllerStatus', 'none', __CLASS__);
+		config::save('driverStatus', 0, __CLASS__);
+		$zwSettings = config::byKey('zwavejs', __CLASS__, array());
+		$mqttSettings = config::byKey('mqtt', __CLASS__,array());
+		$mqttd = self::getDeamon();
+		if ($mqttd->isRunning()) {
+			try {
+				$mqttd->send ('removeTopic',$mqttSettings['prefix']);
+				$mqttd->stop();
+			} catch(Exception $e) {
+				self::send_alert ($e->getmessage());
+			}
+		}
+		if ($zwSettings['mode'] == 'local') {
+			$find = 'server/bin/www.js';
+			$cmd = "(ps ax || ps w) | grep -ie '" . $find . "' | grep -v grep | awk '{print $1}' | xargs " . system::getCmdSudo() . "kill -15 > /dev/null 2>&1";
+			exec($cmd);
+			$i = 0;
+			while ($i < 5) {
+				$deamon_info = self::deamon_info();
+				if ($deamon_info['state'] == 'nok') {
+					break;
+				}
+				sleep(1);
+				$i++;
+			}
+			if ($i >= 5) {
+				system::kill('server/bin/www.js', true);
+				$i = 0;
+				while ($i < 5) {
+					$deamon_info = self::deamon_info();
+					if ($deamon_info['state'] == 'nok') {
+						break;
+					}
+					sleep(1);
+					$i++;
+				}
+			}
+			system::fuserk($zwSettings['port']);
+		} else {
+			config::save('remoteDeamonStatus','stopped',__CLASS__);
+			cache::set('zwavejs::version', 'N/A');
+		}
+	}
 
     public static function generateRandomKey() {
         $randHexStr = strtoupper(implode('', array_map(function () {
@@ -875,112 +851,113 @@ class zwavejs extends eqLogic {
 							$node['classSpecific'] = $node['deviceClass']['specific'];
 							$node['deviceIdNew'] = $node['manufacturerId'] . '-' . $node['productType'] . '-' . $node['productId'];
 
-                            $eqLogic = self::byLogicalId($node['id'], __CLASS__);
-                            $node['confJeedom'] = '-';
-                            if (is_object($eqLogic)) {
-                                $path = $eqLogic->getConfFilePath();
-                                if (is_file(dirname(__FILE__) . '/../config/devices/' . $path)) {
-                                    $node['confJeedom'] = $path;
-                                }
-                                $device = is_json(file_get_contents(dirname(__FILE__) . '/../config/devices/' . $eqLogic->getConfFilePath()), array());
-                                $node['confType'] = 'Configuration Jeedom <br>';
-                                if (isset($device['properties']) && count($device['properties']) > 0) {
-                                    if (isset($device['firmProperties']) && $device['firmProperties'] == 1) {
-                                        $found = false;
-                                        foreach ($device['properties'] as $firm => $property) {
-                                            if ($firm != 'default') {
-                                                if (evaluate($eqLogic->getConfiguration('firmwareVersion') . $firm) === true) {
-                                                    $device['properties'] = $property;
-                                                    $found = true;
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                        if (!$found) {
-                                            $device['properties'] = $device['properties']['default'];
-                                        }
-                                    }
-                                    $node['confType'] .= ' Properties : <br>';
-                                    foreach ($device['properties'] as $property => $value) {
-                                        if (isset($value['mode']) && $value['mode'] != $eqLogic->getConfiguration('confMode', '')) {
-                                            continue;
-                                        }
-                                        $node['confType'] .= '  - ' . $property . ' : ' . json_encode($value) . '<br>';
-                                    }
-                                }
-                                if (isset($device['commands']) && count($device['commands']) > 0) {
-                                    $node['confType'] .= 'Commands : <br>';
-                                    foreach ($device['commands'] as $command) {
-                                        $node['confType'] .= '  - ' . $command['name'] . '<br>';
-                                    }
-                                }
-                                try {
-                                    $node['lastWakeup'] = 'N/A';
-                                    $node['nextWakeup'] = 'N/A';
-                                    $node['configWakeup'] = 'N/A';
-                                    $configWakeup = $node['values']['132-0-wakeUpInterval']['value'];
-                                    $node['configWakeup'] = self::secondsToTime($configWakeup);
-                                    if ($eqLogic->getConfiguration('lastWakeUp', '') != '') {
-                                        $lastWakeUp = time() - $eqLogic->getConfiguration('lastWakeUp', '');
-                                        $node['lastWakeup'] = self::secondsToTime($lastWakeUp);
-                                        if ($lastWakeUp > $configWakeup) {
-                                            $node['nextWakeup'] = '- ' . self::secondsToTime($lastWakeUp - $configWakeup);
-                                        } else {
-                                            $node['nextWakeup'] = self::secondsToTime($configWakeup - $lastWakeUp);
-                                        }
-                                    }
-                                } catch (Exception $e) {
-                                }
-                            }
-                            self::addFileEvent('getNodeInfo' . $node['id'], $node);
-                        }
-                    }
-                } else if ($value['origin']['type'] == 'getNodeValues') {
-                    foreach ($value['result'] as $node) {
-                        if ($node['id'] == $value['origin']['node']) {
-                            $values['id'] = $node['id'];
-                            $values['status'] = $node['status'];
-                            $values['nodeValues'] = self::constructValuePage($node['id'], $node['values'], $node['status']);
-                            self::addFileEvent('getNodeValues' . $node['id'], $values);
-                        }
-                    }
-                } else if ($value['origin']['type'] == 'group') {
-                    $data = array();
-                    foreach ($value['result'] as $node) {
-                        $data[$node['id']] = array('groups' => $node['groups'], 'label' => $node['productLabel'], 'endpoints' => $node['endpointIndizes'], 'status' => $node['status']);
-                    }
-                    self::addFileEvent('getNodeGroup', $data);
-                } else if ($value['origin']['type'] == 'health') {
-                    $healthData = array();
-                    foreach ($value['result'] as $node => $values) {
-                        $healthData[$values['id']] = $values;
-                    }
-                    $data = self::constructHealthPage($healthData);
-                    self::addFileEvent('getHealthPage', $data);
-                } else if ($value['origin']['type'] == 'healthMobile') {
-                    $healthData = array();
-                    foreach ($value['result'] as $node => $values) {
-                        $healthData[$values['id']] = $values;
-                    }
-                    $data = self::constructHealthPage($healthData, true);
-                    self::addFileEvent('getHealthPageMobile', $data);
-                } else if ($value['origin']['type'] == 'syncValues') {
-                    foreach ($value['result'] as $node) {
-                        if ($node['id'] == $value['origin']['node']) {
-                            $eqLogic = self::byLogicalId($node['id'], __CLASS__);
-                            if (is_object($eqLogic)) {
-                                $eqLogic->handleCommandUpdate($node['values'], true);
-                            }
-                        }
-                    }
-                }
-            } else if ($key == 'getAssociations') {
-                if ($value['origin']['type'] == 'getNodeAssociations') {
-                    self::addFileEvent('getNodeAssociations', array('id' => $value['origin']['node'], 'data' => $value['result']));
-                }
-            }
-        }
-    }
+							$eqLogic = self::byLogicalId($node['id'], __CLASS__);
+							$node['confJeedom'] = '-';
+							if (is_object($eqLogic)) {
+								$path = $eqLogic->getConfFilePath();
+								if (is_file(dirname(__FILE__) . '/../config/devices/' . $path)) {
+									$node['confJeedom'] = $path;
+								}
+								$device = is_json(file_get_contents(dirname(__FILE__) . '/../config/devices/' . $eqLogic->getConfFilePath()), array());
+								$node['confType'] = 'Configuration Jeedom <br>';
+								if (isset($device['properties']) && count($device['properties']) > 0) {
+									if (isset($device['firmProperties']) && $device['firmProperties'] == 1) {
+										$found = false;
+										foreach ($device['properties'] as $firm => $property) {
+											if ($firm != 'default') {
+												if (evaluate($eqLogic->getConfiguration('firmwareVersion') . $firm) === true) {
+													$device['properties'] = $property;
+													$found = true;
+													break;
+												}
+											}
+										}
+										if (!$found) {
+											$device['properties'] = $device['properties']['default'];
+										}
+									}
+									$node['confType'] .= ' Properties : <br>';
+									foreach ($device['properties'] as $property => $value) {
+										if (isset($value['mode']) && $value['mode'] != $eqLogic->getConfiguration('confMode', '')) {
+											continue;
+										}
+										$node['confType'] .= '  - ' . $property . ' : ' . json_encode($value) . '<br>';
+									}
+								}
+								if (isset($device['commands']) && count($device['commands']) > 0) {
+									$node['confType'] .= 'Commands : <br>';
+									foreach ($device['commands'] as $command) {
+										$node['confType'] .= '  - ' . $command['name'] . '<br>';
+									}
+								}
+								try {
+									$node['lastWakeup'] = 'N/A';
+									$node['nextWakeup'] = 'N/A';
+									$node['configWakeup'] = 'N/A';
+									$configWakeup = $node['values']['132-0-wakeUpInterval']['value'];
+									$node['configWakeup'] = self::secondsToTime($configWakeup);
+									if ($eqLogic->getConfiguration('lastWakeUp', '') != '') {
+										$lastWakeUp = time() - $eqLogic->getConfiguration('lastWakeUp', '');
+										$node['lastWakeup'] = self::secondsToTime($lastWakeUp);
+										if ($lastWakeUp > $configWakeup) {
+											$node['nextWakeup'] = '- ' . self::secondsToTime($lastWakeUp - $configWakeup);
+										} else {
+											$node['nextWakeup'] = self::secondsToTime($configWakeup - $lastWakeUp);
+										}
+									}
+								} catch (Exception $e) {
+									self::send_alert ($e->getMessage());
+								}
+							}
+							self::addFileEvent('getNodeInfo' . $node['id'], $node);
+						}
+					}
+				} else if ($value['origin']['type'] == 'getNodeValues') {
+					foreach ($value['result'] as $node) {
+						if ($node['id'] == $value['origin']['node']) {
+							$values['id'] = $node['id'];
+							$values['status'] = $node['status'];
+							$values['nodeValues'] = self::constructValuePage($node['id'], $node['values'], $node['status']);
+							self::addFileEvent('getNodeValues' . $node['id'], $values);
+						}
+					}
+				} else if ($value['origin']['type'] == 'group') {
+					$data = array();
+					foreach ($value['result'] as $node) {
+						$data[$node['id']] = array('groups' => $node['groups'], 'label' => $node['productLabel'], 'endpoints' => $node['endpointIndizes'], 'status' => $node['status']);
+					}
+					self::addFileEvent('getNodeGroup', $data);
+				} else if ($value['origin']['type'] == 'health') {
+					$healthData = array();
+					foreach ($value['result'] as $node => $values) {
+						$healthData[$values['id']] = $values;
+					}
+					$data = self::constructHealthPage($healthData);
+					self::addFileEvent('getHealthPage', $data);
+				} else if ($value['origin']['type'] == 'healthMobile') {
+					$healthData = array();
+					foreach ($value['result'] as $node => $values) {
+						$healthData[$values['id']] = $values;
+					}
+					$data = self::constructHealthPage($healthData, true);
+					self::addFileEvent('getHealthPageMobile', $data);
+				} else if ($value['origin']['type'] == 'syncValues') {
+					foreach ($value['result'] as $node) {
+						if ($node['id'] == $value['origin']['node']) {
+							$eqLogic = self::byLogicalId($node['id'], __CLASS__);
+							if (is_object($eqLogic)) {
+								$eqLogic->handleCommandUpdate($node['values'], true);
+							}
+						}
+					}
+				}
+			} else if ($key == 'getAssociations') {
+				if ($value['origin']['type'] == 'getNodeAssociations') {
+					self::addFileEvent('getNodeAssociations', array('id' => $value['origin']['node'], 'data' => $value['result']));
+				}
+			}
+		}
+	}
 
     public static function handleNode($_node) {
         // log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . "Traitement d'un node");
@@ -1249,37 +1226,33 @@ class zwavejs extends eqLogic {
         self::publishMqttApi('getNodes', array('type' => $_mode));
     }
 
-    public static function controllerAction($_type) {
-        log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . __("Exécution d'une action sur le contrôleur de type", __FILE__) . ' : ' . $_type);
-        self::publishMqttApi($_type, array('type' => 'controllerAction'));
-    }
-
-    public static function namingAction($_nodeId) {
-        log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . __('Envoie des noms et locations pour le nœud', __FILE__) . ' ' . $_nodeId);
-        $allEqLogics = array();
-        if ($_nodeId == 'all') {
-            $allEqLogics = self::byType(__CLASS__);
-        } else {
-            $eq = self::byLogicalId($_nodeId, __CLASS__);
-            if (is_object($eq)) {
-                $allEqLogics[] = $eq;
-            }
-        }
-        foreach ($allEqLogics as $eqLogic) {
-            try {
-                $location = '';
-                $objet = $eqLogic->getObject();
-                if (is_object($objet)) {
-                    $location = $objet->getName();
-                } else {
-                    $location = 'aucun';
-                }
-                $name = $eqLogic->getName();
-                $eqLogic->setNameLocation($name, $location);
-            } catch (Exception $e) {
-            }
-        }
-    }
+	public static function namingAction($_nodeId) {
+		log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . __('Envoie des noms et locations pour le nœud', __FILE__) . ' ' . $_nodeId);
+		$allEqLogics = array();
+		if ($_nodeId == 'all') {
+			$allEqLogics = self::byType(__CLASS__);
+		} else {
+			$eq = self::byLogicalId($_nodeId, __CLASS__);
+			if (is_object($eq)) {
+				$allEqLogics[] = $eq;
+			}
+		}
+		foreach ($allEqLogics as $eqLogic) {
+			try {
+				$location = '';
+				$objet = $eqLogic->getObject();
+				if (is_object($objet)) {
+					$location = $objet->getName();
+				} else {
+					$location = 'aucun';
+				}
+				$name = $eqLogic->getName();
+				$eqLogic->setNameLocation($name, $location);
+			} catch (Exception $e) {
+				self::send_alert ($e->getMessage());
+			}
+		}
+	}
 
     public static function nodeAction($_type, $_nodeId) {
         log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . __("Exécution d'une action sur le nœud", __FILE__) . ' ' . $_nodeId . ' ' . __('de type', __FILE__) . ' : ' . $_type);
@@ -2497,26 +2470,6 @@ class zwavejs extends eqLogic {
 			return;
 		}
 	}
-
-    public function getImage() {
-        $file = 'plugins/zwavejs/core/config/devices/' . $this->getImgFilePath();
-        if (!is_file(__DIR__ . '/../../../../' . $file)) {
-            return 'plugins/zwavejs/plugin_info/zwavejs_icon.png';
-        }
-        return $file;
-    }
-
-    public function createCommand($_update = 0) {
-        log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] id:' . $this->getLogicalId() . ' name: ' .  $this->getName());
-        if (!is_numeric($this->getLogicalId())) {
-            return;
-        }
-        if (is_file(dirname(__FILE__) . '/../config/devices/' . $this->getConfFilePath())) {
-            $this->loadCmdFromConf($_update);
-            self::nodeAction('syncValues', $this->getLogicalId());
-            return;
-        }
-    }
 
     public function pollValue($_class) {
         // log::add(__CLASS__, 'debug', '[' . __FUNCTION__ . '] ' . $_class);

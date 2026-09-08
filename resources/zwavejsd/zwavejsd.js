@@ -28,7 +28,7 @@ Jeedom.log.info('Log level on  : ' + args.loglevel)
 Jeedom.log.info('Socket port : ' + args.socketport)
 Jeedom.log.info('MQTT : ' + args.mqtt_server)
 Jeedom.log.info('Username : ' + args.username)
-Jeedom.log.info('Password : ' + args.password)
+Jeedom.log.info('Password : ' + (args.password ? '***' : '(empty)'))
 Jeedom.log.info('PID file : ' + args.pid)
 Jeedom.log.info('Apikey : ' + args.apikey)
 Jeedom.log.info('Callback : ' + args.callback)
@@ -52,6 +52,11 @@ var client = mqtt.connect(args.mqtt_server, {
     clientId: "mqtt-jeedom_" + Math.random().toString(16).substring(0, 8), rejectUnauthorized: false, //    key: key,
 //    cert: crt,
     username: args.username, password: args.password
+})
+
+process.on('uncaughtException', function(error) {
+  Jeedom.log.error('Uncaught exception : ' + (error && error.stack ? error.stack : error))
+  process.exit(1)
 })
 
 Jeedom.log.info('Connect to mqtt server')
@@ -90,60 +95,66 @@ client.on('message', function (topic, message) {
 
 Jeedom.http.config(args.socketport, args.apikey)
 
-Jeedom.http.app.post('/addTopic', function (req, res) {
-    try {
-        if (!Jeedom.http.checkApikey(req)) throw new Exception('Invalid apikey')
-        if (req.body.topic) {
-            Jeedom.log.info('Adding topic: ' + req.body.topic)
-            client.subscribe(req.body.topic + '/#', function (err) {
-                if (err) throw new Exception(err)
-            })
-        }
-        res.setHeader('Content-Type', 'application/json')
-        res.send({state: "ok"})
-        return
-    } catch (error) {
-        Jeedom.log.debug('Error on topic addition : ' + error)
-        res.setHeader('Content-Type', 'application/json')
-        res.send({state: "nok", result: JSON.stringify(error)})
+Jeedom.http.app.post('/addTopic', function(req, res) {
+  try {
+    if (!Jeedom.http.checkApikey(req))
+	throw new Error ('Invalid apikey')
+    if(req.body.topic) {
+	Jeedom.log.info('Adding topic: ' + req.body.topic)
+	client.subscribe(req.body.topic + '/#', function(err) {
+	if (err)
+		throw new Error (err)
+	})
     }
+    res.setHeader('Content-Type', 'application/json')
+    res.send({ state: "ok" })
+    return
+  } catch (error) {
+    Jeedom.log.error('Error on topic addition : ' + error)
+    res.setHeader('Content-Type', 'application/json')
+    res.send({ state: "nok", result: JSON.stringify(error) })
+  }
 })
 
-Jeedom.http.app.post('/removeTopic', function (req, res) {
-    try {
-        if (!Jeedom.http.checkApikey(req)) throw new Exception('Invalid apikey')
-        if (req.body.topic) {
-            Jeedom.log.info('Removing topic: ' + req.body.topic)
-            client.unsubscribe(req.body.topic + '/#', function (err) {
-                if (err) throw new Exception(err)
-            })
-        }
-        res.setHeader('Content-Type', 'application/json')
-        res.send({state: "ok"})
-        return
-    } catch (error) {
-        Jeedom.log.debug('Error on topic removal : ' + error)
-        res.setHeader('Content-Type', 'application/json')
-        res.send({state: "nok", result: JSON.stringify(error)})
+Jeedom.http.app.post('/removeTopic', function(req, res) {
+  try {
+    if (!Jeedom.http.checkApikey(req))
+        throw new Error ('Invalid apikey')
+    if(req.body.topic) {
+        Jeedom.log.info('Removing topic: ' + req.body.topic)
+        client.unsubscribe(req.body.topic + '/#', function(err) {
+        if (err)
+                throw new Error (err)
+        })
     }
+    res.setHeader('Content-Type', 'application/json')
+    res.send({ state: "ok" })
+    return
+  } catch (error) {
+    Jeedom.log.error('Error on topic removal : ' + error)
+    res.setHeader('Content-Type', 'application/json')
+    res.send({ state: "nok", result: JSON.stringify(error) })
+  }
 })
 
-Jeedom.http.app.post('/publish', function (req, res) {
-    try {
-        if (!Jeedom.http.checkApikey(req)) throw new Exception('Invalid apikey')
+Jeedom.http.app.post('/publish', function(req, res) {
+  try {
+    if (!Jeedom.http.checkApikey(req))
+	throw new Error ('Invalid apikey')
 
-        if (req.body.topic) {
-            Jeedom.log.info('Publish message on topic: ' + req.body.topic + ' => ' + String(req.body.message))
-            client.publish(req.body.topic, String(req.body.message), function (err) {
-                if (err) throw new Exception(err)
-            })
-        }
-        res.setHeader('Content-Type', 'application/json')
-        res.send({state: "ok"})
-        return
-    } catch (error) {
-        Jeedom.log.debug('Error on topic publication : ' + error)
-        res.setHeader('Content-Type', 'application/json')
-        res.send({state: "nok", result: JSON.stringify(error)})
+    if(req.body.topic) {
+	Jeedom.log.info('Publish message on topic: ' + req.body.topic + ' => ' + String(req.body.message))
+	client.publish(req.body.topic, String(req.body.message), function(err) {
+	if (err)
+		throw new Error(err)
+	})
     }
+    res.setHeader('Content-Type', 'application/json')
+    res.send({ state: "ok" })
+    return
+  } catch (error) {
+    Jeedom.log.error('Error on topic publication : ' + error)
+    res.setHeader('Content-Type', 'application/json')
+    res.send({ state: "nok", result: JSON.stringify(error) })
+  }
 })
