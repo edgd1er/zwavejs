@@ -1673,8 +1673,10 @@ class zwavejs extends eqLogic {
 				$healthPage .= '<tr><td><span class="label label-primary">' . $values['id'] . '</span></td>';
 				$eqLogic = self::byLogicalId($values['id'], __CLASS__);
 				$productDetails = '<sup><i class="fas fa-question-circle tooltips" title="' . $values['manufacturer'] . ' ' . $values['productDescription'] . ' Firmware : ' . $values['firmwareVersion'] . '"></i><sup>';
+
 				if (is_object($eqLogic)) {
-					$healthPage .= '<td><img src="' . $eqLogic->getImage() . '" height="40"/> <a href="index.php?v=d&p=zwavejs&m=zwavejs&id=' . $eqLogic->getId() . '">' . $eqLogic->getHumanName(true) .  '</a>' . ' ' . $productDetails . '</td>';
+					$healthPage .= '<td><img src="' . $eqLogic->getImage() . '" height="40"/> <a href="index.php?v=d&p=zwavejs&m=zwavejs&id=' 
+					. $eqLogic->getId() . '">' . $eqLogic->getHumanName(true) .  '</a>' . ' ' . $productDetails . '</td>';
 				} else {
 					$healthPage .= '<td><img src="plugins/zwavejs/plugin_info/zwavejs_icon.png" height="40"/> ' . $values['productLabel'] . ' - ' . $values['productDescription'] . ' ' . $productDetails . '</td>';
 				}
@@ -2525,75 +2527,75 @@ class zwavejsCmd extends cmd {
         $this->setLogicalId($logical);
     }
 
-    public function execute($_options = array()) {
-        if ($this->getType() != 'action') {
-            return;
-        }
-        $value = $this->getConfiguration('value');
-        $eqLogic = $this->getEqLogic();
-        $node = $eqLogic->getLogicalId();
-        $cc = $this->getConfiguration('class');
-        $endpoint = $this->getConfiguration('endpoint');
-        $property = $this->getConfiguration('property');
-        $path = $cc . '/' . $endpoint . '/' . str_replace('-', '/', $property);
-        if ($value == 'get') {
-            if (is_numeric($property)) {
-                $args = array('args' => array(array('nodeId' => intval($node), 'commandClass' => intval($cc)), 'get', array(intval($property))));
-            } else {
-                $args = array('args' => array(array('nodeId' => intval($node), 'commandClass' => intval($cc)), 'get', array($property)));
-            }
-            zwavejs::publishMqttApi('sendCommand', $args);
-            return;
-        }
-        if ($property == 'sendReport') {
-            $elements = explode('-', $value);
-            $report = array();
-            foreach ($elements as $element) {
-                $elementArray = explode(':', $element);
-                $report[$elementArray[0]] = intval($elementArray[1]);
-            }
-            $args = array('args' => array(array('nodeId' => intval($node), 'commandClass' => intval($cc)), 'sendReport', array($report)));
-            zwavejs::publishMqttApi('sendCommand', $args);
-            return;
-        }
-        if ($property == 'refreshNodeCC') {
-            zwavejs::refreshNodeCC(intval($node),intval($cc));
-            return;
-        }
-        if ($cc == 0 && $endpoint == 0) {
-            $args = array('args' => array(intval($node)));
-            zwavejs::publishMqttApi($property, $args);
-            return;
-        }
-        switch ($this->getSubType()) {
-            case 'message':
-                $value = str_replace('#message#', $_options['message'], $value);
-                break;
-            case 'slider':
-                $value = str_replace('#slider#', $_options['slider'], $value);
-                break;
-            case 'select':
-                $value = str_replace('#select#', $_options['select'], $value);
-                break;
-            case 'color':
-                if ($property == 'targetColor') {
-                    $value = zwavejs::convertColorToArray($_options['color']);
-                } else {
-                    $value = strval(str_replace('#color#', $_options['color'], $value));
-                }
-        }
-        if ($cc == 99) {
-            $fullPath = $node . '-' . $cc . '-' . $endpoint . '-' . $property;
-            $eqLogic->setNodeValue($fullPath, $value);
-            return;
-        }
-        if (substr($value, 0, 3) == 'set') {
-            $fullPath = $node . '-' . $cc . '-' . $endpoint . '-' . $property;
-            $val = explode('-', $value, 2)[1];
-            $eqLogic->setNodeValue($fullPath, $val);
-            return;
-        }
-        zwavejs::publishMqttValue($node, $path, $value);
-        $eqLogic->refreshIfNeeded($path,$value);
-    }
+	public function execute($_options = array()) {
+		if ($this->getType() != 'action') {
+			return;
+		}
+		$value = $this->getConfiguration('value');
+		$eqLogic = $this->getEqLogic();
+		$node = $eqLogic->getLogicalId();
+		$cc = $this->getConfiguration('class');
+		$endpoint = $this->getConfiguration('endpoint');
+		$property = $this->getConfiguration('property');
+		$path = $cc . '/' . $endpoint . '/' . str_replace('-', '/', $property);
+		if ($value == 'get') {
+			if (is_numeric($property)) {
+				$args = array('args' => array(array('nodeId' => intval($node), 'commandClass' => intval($cc)), 'get', array(intval($property))));
+			} else {
+				$args = array('args' => array(array('nodeId' => intval($node), 'commandClass' => intval($cc)), 'get', array($property)));
+			}
+			zwavejs::publishMqttApi('sendCommand', $args);
+			return;
+		}
+		if ($property == 'sendReport') {
+			$elements = explode('-', $value);
+			$report = array();
+			foreach ($elements as $element) {
+				$elementArray = explode(':', $element);
+				$report[$elementArray[0]] = intval($elementArray[1]);
+			}
+			$args = array('args' => array(array('nodeId' => intval($node), 'commandClass' => intval($cc)), 'sendReport', array($report)));
+			zwavejs::publishMqttApi('sendCommand', $args);
+			return;
+		}
+		if ($property == 'refreshNodeCC') {
+			zwavejs::refreshNodeCC(intval($node),intval($cc));
+			return;
+		}
+		if ($cc == 0 && $endpoint == 0) {
+			$args = array('args' => array(intval($node)));
+			zwavejs::publishMqttApi($property, $args);
+			return;
+		}
+		switch ($this->getSubType()) {
+			case 'message':
+				$value = str_replace('#message#', $_options['message'], $value);
+				break;
+			case 'slider':
+				$value = str_replace('#slider#', $_options['slider'], $value);
+				break;
+			case 'select':
+				$value = str_replace('#select#', $_options['select'], $value);
+				break;
+			case 'color':
+				if ($property == 'targetColor') {
+					$value = zwavejs::convertColorToArray($_options['color']);
+				} else {
+					$value = strval(str_replace('#color#', $_options['color'], $value));
+				}
+		}
+		if ($cc == 99) {
+			$fullPath = $node . '-' . $cc . '-' . $endpoint . '-' . $property;
+			$eqLogic->setNodeValue($fullPath, $value);
+			return;
+		}
+		if (is_string($value) && substr($value, 0, 3) == 'set') {
+			$fullPath = $node . '-' . $cc . '-' . $endpoint . '-' . $property;
+			$val = explode('-', $value, 2)[1];
+			$eqLogic->setNodeValue($fullPath, $val);
+			return;
+		}
+		zwavejs::publishMqttValue($node, $path, $value);
+		$eqLogic->refreshIfNeeded($path,$value);
+	}
 }
