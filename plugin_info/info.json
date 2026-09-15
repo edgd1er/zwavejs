@@ -6,8 +6,12 @@
 		"en_US": "Plugin to control Z-Wave equipment",
 		"es_ES": "Plugin para controlar equipos Z-Wave",
 		"de_DE": "Plugin zur Steuerung von Z-Wave-Geräten",
+		"ru_RU": "Plugin pour contrôler les équipements Z-Wave",
+		"id_ID": "Plugin pour contrôler les équipements Z-Wave",
 		"it_IT": "Plugin pour contrôler les équipements Z-Wave",
-		"pt_PT": "Plugin para controlar equipamentos Z-Wave"
+		"ja_JP": "Plugin pour contrôler les équipements Z-Wave",
+		"pt_PT": "Plugin para controlar equipamentos Z-Wave",
+		"tr": "Plugin pour contrôler les équipements Z-Wave"
 	},
 	"licence": "AGPL",
 	"author": "Jeedom SAS",
@@ -19,15 +23,19 @@
 	"hasDependency": true,
 	"hasOwnDeamon": true,
 	"maxDependancyInstallTime": 45,
-	"changelog": "https://doc.jeedom.com/#language#/plugins/automation protocol/zwavejs/changelog",
-	"documentation": "https://doc.jeedom.com/#language#/plugins/automation protocol/zwavejs/",
+	"changelog": "https:\/\/doc.jeedom.com\/#language#\/plugins\/automation protocol\/zwavejs\/changelog",
+	"documentation": "https:\/\/doc.jeedom.com\/#language#\/plugins\/automation protocol\/zwavejs\/",
 	"language": [
-		"de_DE",
+		"fr_FR",
 		"en_US",
 		"es_ES",
-		"fr_FR",
+		"de_DE",
+		"ru_RU",
+		"id_ID",
 		"it_IT",
-		"pt_PT"
+		"ja_JP",
+		"pt_PT",
+		"tr"
 	],
 	"compatibility": [
 		"jeedomboard",
@@ -38,6 +46,6 @@
 		"v4",
 		"atlas"
 	],
-	"changelog_beta": "https://doc.jeedom.com/#language#/plugins/automation protocol/zwavejs/beta/changelog",
-	"documentation_beta": "https://doc.jeedom.com/#language#/plugins/automation protocol/zwavejs/beta"
+	"changelog_beta": "https:\/\/doc.jeedom.com\/#language#\/plugins\/automation protocol\/zwavejs\/beta\/changelog",
+	"documentation_beta": "https:\/\/doc.jeedom.com\/#language#\/plugins\/automation protocol\/zwavejs\/beta"
 }

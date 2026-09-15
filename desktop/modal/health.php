@@ -21,10 +21,10 @@ if (!isConnect('admin')) {
 sendVarToJs('battery_warning', config::byKey('battery::warning'));
 sendVarToJs('battery_danger', config::byKey('battery::danger'));
 ?>
-<div id="div_networkHealthAlert" style="display: none;"></div>
-<div class="modalHealthValues">
-    <table class="table table-condensed tableHealth" id="table_healthNetwork">
-        <thead>
+    <div id="div_networkHealthAlert" style="display: none;"></div>
+    <div class="modalHealthValues">
+        <table class="table table-condensed tableHealth" id="table_healthNetwork">
+            <thead>
             <tr>
                 <th>{{Id}}</th>
                 <th>{{Equipement}}</th>
@@ -41,11 +41,11 @@ sendVarToJs('battery_danger', config::byKey('battery::danger'));
                 <th>{{Dernière activité}}</th>
                 <th>{{Ping}}</th>
             </tr>
-        </thead>
-        <tbody>
+            </thead>
+            <tbody>
 
-        </tbody>
-    </table>
-</div>
-<?php include_file('core', 'zwavejs', 'class.js', 'zwavejs');
+            </tbody>
+        </table>
+    </div>
+<?php include_file('core', 'zwavejs.class', 'js', 'zwavejs');
 include_file('desktop', 'health', 'js', 'zwavejs'); ?>

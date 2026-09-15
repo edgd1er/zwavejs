@@ -38,5 +38,5 @@ if (!isConnect('admin')) {
         </tbody>
     </table>
 </div>
-<?php include_file('core', 'zwavejs', 'class.js', 'zwavejs');
+<?php include_file('core', 'zwavejs.class', 'js', 'zwavejs');
 include_file('desktop', 'waiting', 'js', 'zwavejs'); ?>
