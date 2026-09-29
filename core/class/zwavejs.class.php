@@ -744,70 +744,72 @@ class zwavejs extends eqLogic {
             } else if ($key == 'getInfo') {
                 self::addFileEvent('getInfo', $value['result']);
 
-                if (isset($value['result']['controllerId'])) {
-                    config::save('controllerId', $value['result']['controllerId'], __CLASS__);
-                }
-                if (isset($value['result']['appVersion'])) {
-                    $version = array_slice(explode('.', $value['result']['appVersion']),0,3);
-                    cache::set('zwavejs::version', implode('.',$version));
-                    event::add('zwavejs::version_updated', array());
-                }
-            } else if ($key == 'getNodes') {
-                $value['result'] = array_filter($value['result'], function ($node) {
-                    return $node['id'] != 255;
-                });
-                if ($value['origin']['type'] == 'sync') {
-                    self::syncNodes($value['result']);
-                } else if ($value['origin']['type'] == 'stats') {
-                    $stats = array();
-                    $stats['totalNodes'] = count($value['result']);
-                    $sleepingNodes = 0;
-                    $networkTree = array('controllerId' => config::byKey('controllerId', __CLASS__, 0), 'data' => array());
-                    $data = array();
-                    foreach ($value['result'] as $node) {
-                        $data = $node;
-                        $eqLogic = self::byLogicalId($node['id'], __CLASS__);
-                        if (is_object($eqLogic)) {
-                            $data['eqName'] = $eqLogic->getHumanName(true);
-                            $data['name'] = $eqLogic->getHumanName();
-                            $data['img'] = $eqLogic->getImage();
-                        } else {
-                            $data['img'] = 'plugins/zwavejs/plugin_info/zwavejs_icon.png';
-                        }
-                        // log::add(__CLASS__, 'debug', json_encode($node));
-                        if ($node['id'] == config::byKey('controllerId', __CLASS__, 0)) {
-                            $stats['controllerNeighbors'] = implode(' - ', $node['neighbors']);
-                            $stats['stats'] = $node['statistics'];
-                        }
-                        if ($node['status'] == 'Asleep') {
-                            $sleepingNodes += 1;
-                        }
-                        unset($data['deviceConfig']);
-                        unset($data['values']);
-                        $networkTree['data'][$data['id']] = $data;
-                    }
-                    $stats['sleepingNodes'] = $sleepingNodes;
-                    $stats['networkTree'] = $networkTree;
-                    self::addFileEvent('getNodeStats', $stats);
-                } else if ($value['origin']['type'] == 'getNodeInfo') {
-                    foreach ($value['result'] as $node) {
-                        if ($node['id'] == $value['origin']['node']) {
-                            $node['neighbors'] = implode(' - ', $node['neighbors']);
-                            if (isset($node['deviceConfig']['filename']) && $node['deviceConfig']['filename'] != '') {
-                                $explodeFile = explode('/', $node['deviceConfig']['filename']);
-                                $fileExt = '(Jeedom)';
-                                if (in_array('@zwave-js', $explodeFile)) {
-                                    $fileExt = '(Zwave-Js)';
-                                }
-                                $node['filename'] = end($explodeFile) . ' ' . $fileExt;
-                            } else {
-                                $node['filename'] = 'Aucun';
-                            }
-                            $node['numberGroups'] = count($node['groups']);
-                            $node['classBasic'] = $node['deviceClass']['basic'];
-                            $node['classGeneric'] = $node['deviceClass']['generic'];
-                            $node['classSpecific'] = $node['deviceClass']['specific'];
-                            $node['deviceIdNew'] = $node['manufacturerId'] . '-' . $node['productType'] . '-' . $node['productId'];
+				if (isset($value['result']['controllerId'])) {
+					config::save('controllerId', $value['result']['controllerId'], __CLASS__);
+				}
+				if (isset($value['result']['appVersion'])) {
+					$version = array_slice(explode('.', $value['result']['appVersion']),0,3);
+					cache::set('zwavejs::version', implode('.',$version));
+					event::add('zwavejs::version_updated', array());
+				}
+			} else if ($key == 'getNodes') {
+				if (isset($value['result']) && is_array($value['result'])) {
+					$value['result'] = array_filter($value['result'], function ($node) {
+						return $node['id'] != 255;
+					});
+				}
+				if ($value['origin']['type'] == 'sync') {
+					self::syncNodes($value['result']);
+				} else if ($value['origin']['type'] == 'stats') {
+					$stats = array();
+					$stats['totalNodes'] = count($value['result']);
+					$sleepingNodes = 0;
+					$networkTree = array('controllerId' => config::byKey('controllerId', __CLASS__, 0), 'data' => array());
+					$data = array();
+					foreach ($value['result'] as $node) {
+						$data = $node;
+						$eqLogic = self::byLogicalId($node['id'], __CLASS__);
+						if (is_object($eqLogic)) {
+							$data['eqName'] = $eqLogic->getHumanName(true);
+							$data['name'] = $eqLogic->getHumanName();
+							$data['img'] = $eqLogic->getImage();
+						} else {
+							$data['img'] = 'plugins/zwavejs/plugin_info/zwavejs_icon.png';
+						}
+						// log::add(__CLASS__, 'debug', json_encode($node));
+						if ($node['id'] == config::byKey('controllerId', __CLASS__, 0)) {
+							$stats['controllerNeighbors'] = implode(' - ', $node['neighbors']);
+							$stats['stats'] = $node['statistics'];
+						}
+						if ($node['status'] == 'Asleep') {
+							$sleepingNodes += 1;
+						}
+						unset($data['deviceConfig']);
+						unset($data['values']);
+						$networkTree['data'][$data['id']] = $data;
+					}
+					$stats['sleepingNodes'] = $sleepingNodes;
+					$stats['networkTree'] = $networkTree;
+					self::addFileEvent('getNodeStats', $stats);
+				} else if ($value['origin']['type'] == 'getNodeInfo') {
+					foreach ($value['result'] as $node) {
+						if ($node['id'] == $value['origin']['node']) {
+							$node['neighbors'] = implode(' - ', $node['neighbors']);
+							if (isset($node['deviceConfig']['filename']) && $node['deviceConfig']['filename'] != '') {
+								$explodeFile = explode('/', $node['deviceConfig']['filename']);
+								$fileExt = '(Jeedom)';
+								if (in_array('@zwave-js', $explodeFile)) {
+									$fileExt = '(Zwave-Js)';
+								}
+								$node['filename'] = end($explodeFile) . ' ' . $fileExt;
+							} else {
+								$node['filename'] = 'Aucun';
+							}
+							$node['numberGroups'] = count($node['groups']);
+							$node['classBasic'] = $node['deviceClass']['basic'];
+							$node['classGeneric'] = $node['deviceClass']['generic'];
+							$node['classSpecific'] = $node['deviceClass']['specific'];
+							$node['deviceIdNew'] = $node['manufacturerId'] . '-' . $node['productType'] . '-' . $node['productId'];
 
                             $eqLogic = self::byLogicalId($node['id'], __CLASS__);
                             $node['confJeedom'] = '-';
